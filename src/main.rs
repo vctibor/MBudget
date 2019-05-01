@@ -7,6 +7,8 @@ extern crate handlebars;
 #[macro_use] extern crate serde_json;
 // #[macro_use] extern crate serde_derive;
 
+use std::collections::HashMap;
+
 use postgres::{Connection, TlsMode};
 
 use chrono::NaiveDate;
@@ -37,54 +39,34 @@ const TEMPLATE_NAME: &str = "month";
 const CONNECTION_STR: &str = "postgres://malky:malky@192.168.196.97:5432/mbudget";
 
 // Amount of money allowed to spend each day.
-// TODO: Move to DB.
+// TODO: Move to DB and read on each HTTP request.
 const DAILY_ALLOWANCE: f64 = 300.0;
 
 static HBS: OnceCell<Handlebars> = OnceCell::INIT;
 
+/// Get vector of days in given month and year.
+///
+/// Algorithm:
+///  - get first day of next month
+///  - get one day before - certain to be last day of given month
+///  - iterate in simple integer for loop from 1 to last day of month
+///  - build dates from numbers
+fn get_month_days(year: u32, month: u32) -> Vec<NaiveDate> {
 
-fn get_month_days(month: u32, year: u32) -> Vec<NaiveDate> {    
+    let year = year as i32;    
 
-    /*
-    let mut days = Vec::<NaiveDate>::new();    
-    let mut dt = NaiveDate::from_ymd(year as i32, month, 01);
+    let last_day = 
+        NaiveDate::from_ymd(year, month + 1, 1).pred().day();
 
-    loop {
-        days.push(dt.clone());
-        dt = dt.succ();
-        if dt.month() != month {
-            break;
-        }
+    let mut days: Vec<NaiveDate> = Vec::with_capacity(5);
+
+    for day in 1..(last_day+1) {
+        days.push(NaiveDate::from_ymd(year, month, day));
     }
 
     let days = days;
-    return days;
-    */
 
-
-    let mut days = Vec::<NaiveDate>::new();    
-    
-    let mut dt = NaiveDate::from_ymd(year as i32, month, 01);
-
-    let mut ix = 0;
-
-    loop {
-        
-        days.insert(ix, dt.clone());
-        
-        ix = ix + 1;
-
-        dt = dt.succ();
-        
-        if dt.month() != month {
-            break;
-        }
-    }
-
-    let days = days;
-    return days;
-
-
+    days
 }
 
 
@@ -96,20 +78,26 @@ fn index_handler() -> Response {
 
     let current_year = now.year() as u32;
     
-    index_month_handler(current_year, current_month)
+    //index_month_handler(current_year, current_month)
+    index_month_handler(current_year, 4)
 }
 
 // TODO: show days without transactions
 fn index_month_handler(year: u32, month: u32) -> Response {    
 
-    let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None).unwrap();
-   
-    let daily_sum = read_month_transactions(&conn, 3, year);
+    let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None).unwrap();   
+    
+    let expenses: HashMap<u32, DailyExpense> = read_month_transactions(&conn, year, month);
 
-    let mut days = Vec::new();
+    let days = get_month_days(year, month);
 
-    for sum in &daily_sum {
+    let mut model_days: Vec<Day> = Vec::new();
 
+    let month_sum = get_month_sum(&conn, year, month);
+
+    for day in &days {
+
+        /*
         let color = if sum.total_spent <= DAILY_ALLOWANCE {
             Color::good
         } else {
@@ -121,24 +109,36 @@ fn index_month_handler(year: u32, month: u32) -> Response {
             color: color,
             amount: sum.total_spent
         });
+        */
+
+        let day_in_month: u32 = day.day();
+
+
+        let day_expense = expenses.get(&day_in_month);
+
+
+        let mut color: Color = Color::Good;
+        let mut amount: f64 = 0.0;
+
+
+        if let Some(expense) = day_expense {
+
+            color = if expense.total_spent <= DAILY_ALLOWANCE {
+                Color::Good
+            } else {
+                Color::Bad
+            };
+
+            amount = expense.total_spent;
+        } 
+
+        model_days.push(Day {
+            day: day_in_month,
+            color: color,
+            amount: amount
+        });
 
     }
-
-    /*
-    let days: Vec<Day> = vec![
-        Day { day: 1, color: Color::bad, amount: 477.5 },
-        Day { day: 2, color: Color::good, amount: 0.0 },
-        Day { day: 3, color: Color::good, amount: 41.0 },
-        Day { day: 4, color: Color::bad, amount: 558.0 },
-        Day { day: 5, color: Color::good, amount: 133.52 },
-        Day { day: 6, color: Color::bad, amount: 1200.0 },
-        Day { day: 7, color: Color::bad, amount: 301.55 },
-        Day { day: 8, color: Color::good, amount: 88.0 },
-        Day { day: 9, color: Color::good, amount: 0.0 },
-        Day { day:10, color: Color::good, amount: 15.5 }        
-    ];
-    */
-    
 
     let model = IndexModel {
         month_name: "Duben".to_string(),
@@ -154,12 +154,12 @@ fn index_month_handler(year: u32, month: u32) -> Response {
         saldo: 540.4,
         potential_remaining: 2276.36,
 
-        real_day_disposable_color: Color::good,
-        avg_daily_expenses_color: Color::bad,
-        saldo_color: Color::good,
-        potential_remaining_color: Color::bad,
+        real_day_disposable_color: Color::Good,
+        avg_daily_expenses_color: Color::Bad,
+        saldo_color: Color::Good,
+        potential_remaining_color: Color::Bad,
 
-        days: days,
+        days: model_days,
 
         current_day: "4. Dubna".to_string(),
         current_day_name: "Čtvrtek".to_string()
@@ -179,60 +179,15 @@ fn now() -> NaiveDate {
     NaiveDate::from_ymd(d.year(), d.month(), d.day())
 }
 
+
+
 fn main() {
-
-    // let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None).unwrap();
-
-    /*
-
-    let now = now();
-
-    println!("{:?}", now);
-
-    let current_day = now.day();
-
-    let current_month = now.month();
-
-    let current_year = now.year() as u32;
-
-
-    println!("Today is {}-th day of {}-th month.", current_day, current_month);
-
-
-    let mut month_days: Vec<NaiveDate> = get_month_days(current_month, current_year);
-
-    while let Some(date) = month_days.pop() {
-        
-        let d = date.day() as u32;
-        let m = date.month() as u32;
-        let y = date.year() as u32;
-
-        let mut daily_trans: Vec<Transaction> = read_transactions(&conn, d, m, y);
-
-        println!("{}", date);
-
-        while let Some(tran) = daily_trans.pop() {
-            println!("{} kč", tran.amount);
-        }
-
-        println!("\n");
-    }
-
-
-    let mut daily_trans: Vec<Transaction> = read_transaction(&conn, 4, 4, 2019);
-
-
-    while let Some(tran) = daily_trans.pop() {
-        
-        println!("{:?}", tran);
-    }
-    */
 
 
     
-    let address = ("192.168.1.2").to_owned();
+    //let address = ("192.168.1.2").to_owned();
 
-    let port = ("9000").to_owned();
+    //let port = ("9000").to_owned();
 
     let wwwroot_location = ("./static").to_owned();
 
@@ -256,7 +211,9 @@ fn main() {
 
     // Start server
 
-    let addr = address + ":" + &port.to_string();
+    //let addr = address + ":" + &port.to_string();
+
+    let addr = "0.0.0.0:9000";
 
     println!("Started server on {}", addr);
 
@@ -273,11 +230,12 @@ fn main() {
             
             (GET) (/) => { index_handler() },
 
-            /*
+            
             (GET) (/{year: u32}/{month: u32}) => {
                 index_month_handler(year, month)
             },
 
+            /*
             (GET) (/read-month/{year: u32}/{month: u32}) => {
                 read_month_handler(year, month)
             },
@@ -292,60 +250,5 @@ fn main() {
             
         )
     });
-
-
-    /*
-    let query = "select id, name from categories";
-
-    let query_result = &conn.query(query, &[]).expect("Query failed.");
-
-    for row in query_result {
-
-        let cat = Category {
-            id: row.get(0),
-            name: row.get(1)
-        };
-
-        println!("{:?}", cat);
-    }
-    
-    println!("\n\n");
-
-    let query = "select id, date, category, amount, description from transactions";
-
-    let query_result = &conn.query(query, &[]).expect("Query failed.");
-
-    for row in query_result {
-
-        let tran = Transaction {
-            id: row.get(0),
-            date: row.get(1),
-            category: row.get(2),
-            amount: row.get(3),
-            description: row.get(4)
-        };
-
-        println!("{:?}", tran);
-    }
-
-    
-    println!("\n\n");
-
-
-    let query = "select * from days";
-
-    let query_result = &conn.query(query, &[]).expect("Query failed.");
-
-    for row in query_result {
-
-        let day: f64 = row.get(0);
-        let month: f64 = row.get(1);
-        let total: i64 = row.get(2);
-        let transactions: i64 = row.get(3);
-
-        println!("{} {} {} {}", day, month, total, transactions);
-    }
-    */
-
 
 }

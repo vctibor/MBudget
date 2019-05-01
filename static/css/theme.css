@@ -45,7 +45,7 @@ hr {
 .info_table td.label {
     font-weight: bold;
     text-align: left;
-    width: 15vw;
+    width: 18vw;
 }
 
 .info_table td.monetary {
@@ -54,13 +54,13 @@ hr {
     text-shadow: none;
 }   
 
-.good {
+.Good {
     background-color: #ccffcc;
     color: #197922;
     text-shadow: none;
 }
 
-.bad {
+.Bad {
     background-color: #ffcccc;
     color: #d21919;
     text-shadow: none;

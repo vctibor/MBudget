@@ -1,6 +1,9 @@
+use std::collections::HashMap;
 use postgres::Connection;
 use chrono::NaiveDate;
 //use model::Transaction;
+
+use model::Day;
 
 #[derive(Debug)]
 pub struct Transaction {
@@ -20,9 +23,24 @@ pub struct DailyExpense {
     pub trans_count: i64
 }
 
+#[derive(Serialize, Deserialize)]
+struct Month {
+    month: u32,
+    year: u32,
+    name: String,
+    weeks: Vec<Day>
+}
+
+#[derive(Debug)]
+struct Category {
+    id: i32,
+    name: String
+}
+
+
 const SCALE: f64 = 1_000_000.0;
 
-pub fn read_transactions(conn: &Connection, day: u32, month: u32, year: u32) -> Vec<Transaction> {
+pub fn read_day_transactions(conn: &Connection, day: u32, month: u32, year: u32) -> Vec<Transaction> {
 
     /*
     This isn't perfect - we should use query interpolation
@@ -66,50 +84,58 @@ pub fn read_transactions(conn: &Connection, day: u32, month: u32, year: u32) -> 
     vec
 }
 
-pub fn read_month_transactions(conn: &Connection, month: u32, year: u32) -> Vec<DailyExpense> {
+pub fn read_month_transactions(conn: &Connection, year: u32, month: u32) -> HashMap<u32, DailyExpense> {
     
-
     let month = month as f64;
     let year = year as f64;
-
-    /*
-    let query = format!(
-        "select * from days where month = {m} and year = {}",
-        y = year, m = month, d = day);
-    */
 
     let query = "select * from days where month = $1 and year = $2";
 
     let query_result: &postgres::rows::Rows =
         &conn.query(&query, &[&month, &year]).expect("Query failed.");
 
-    let mut vec = Vec::new();
+    let mut map: HashMap<u32, DailyExpense> = HashMap::with_capacity(query_result.len());
 
     for row in query_result {
 
-        let d: f64 = row.get(0);
-        let m: f64 = row.get(1);
-        let y: f64 = row.get(2);
+        let day: f64 = row.get(0);
+        let day = day as u32;
 
-        
+        let month: f64 = row.get(1);
+        let month = month as u32;
+
+        let year: f64 = row.get(2);
+        let year = year as u32;
+
         let amount: i64 = row.get(3);
-
-        let amount: f64 = amount as f64;
-
-        let amount = amount / SCALE;
+        let amount = (amount as f64) / SCALE;
         
         let exp = DailyExpense {
-            day: d as u32,
-            month: m as u32,
-            year: y as u32,
+            day: day,
+            month: month,
+            year: year,
             total_spent: amount,
             trans_count: row.get(4)
         };
         
-        vec.push(exp);
+        map.insert(day, exp);
     }
 
-    let vec = vec;
+    map
+}
 
-    vec
+pub fn get_month_sum(conn: &Connection, year: u32, month: u32) -> f64 {
+
+    let start = format!("{}-{}-01", year, month);
+    let end = format!("{}-{}-01", year, month + 1);
+
+    let query = format!("select cast(sum(amount) as bigint) from transactions where date >= '{}' and date < '{}'",
+        start, end);
+
+    let query_result: &postgres::rows::Rows =
+        &conn.query(&query, &[]).expect("Query failed.");
+
+    let result: i64 = query_result.get(0).get(0);
+
+    (result as f64) / SCALE
 }

@@ -1,8 +1,9 @@
-use chrono::NaiveDate;
-use serde_json::Value;
+//use chrono::NaiveDate;
+//use serde_json::Value;
 
 // data model
 
+/*
 #[derive(Serialize, Deserialize)]
 struct Month {
     month: u32,
@@ -18,7 +19,7 @@ struct Category {
     id: i32,
     name: String
 }
-
+*/
 
 
 
@@ -26,8 +27,8 @@ struct Category {
 
 #[derive(Serialize, Deserialize)]
 pub enum Color {
-    good,
-    bad
+    Good,
+    Bad
 }
 
 #[derive(Serialize, Deserialize)]
