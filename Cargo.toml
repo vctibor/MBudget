@@ -1,0 +1,38 @@
+[package]
+name = "mbudget"
+version = "0.1.0"
+authors = ["Vladimir Malky <vladimir.malky@gmail.com>"]
+license = "GPL-3.0-only"
+description = "Simple budgeting application with web interface."
+
+[dependencies]
+
+# PostgreSQL RDBMS
+postgres = { version = "0.15", features = ["with-chrono"] }
+
+# Date keeping
+chrono = "0.4"
+
+# Commandline argument parsing
+# clap = "2.32.0"
+
+# Global objects
+once_cell = "0.1.8"
+
+# Serialization and deserialization
+serde = { version = "1.0.90", features = ["derive"] }
+#serde_derive = "*"
+#serde_json = "1.0"
+serde_json = "1.0"
+
+# HTML templating
+handlebars = "1.1.0"
+
+# Application web server
+rouille = "2.2.0"
+
+# HTTP request parsing
+#reqwest = "0.9.13"
+
+# TOML parsing
+#toml = "0.4.9"

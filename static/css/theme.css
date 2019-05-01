@@ -1,0 +1,175 @@
+body {
+    background-color: #eee;
+    color: #333;
+    text-shadow: 2px 2px 2px #999;
+}
+
+.heading {
+    text-align: center;
+    padding-bottom: 20px;
+}
+  
+.heading_label {
+    font-size: 150%;
+    font-weight: bold;
+    font-variant: small-caps;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.arrow {
+    font-size: 150%;
+    padding-right: 1vw;
+    padding-left: 1vw;
+    cursor: pointer;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+.info {
+    text-align: center;
+}
+
+.empty_space {
+    display: inline-block;
+    width: 10vw;
+}
+
+.info_table {
+    display: inline-block;
+} 
+
+.info_table td.label {
+    font-weight: bold;
+    text-align: left;
+    width: 15vw;
+}
+
+.info_table td.monetary {
+    width: 80px;
+    text-align: center;
+    text-shadow: none;
+}   
+
+.good {
+    background-color: #ccffcc;
+    color: #197922;
+    text-shadow: none;
+}
+
+.bad {
+    background-color: #ffcccc;
+    color: #d21919;
+    text-shadow: none;
+}
+
+.daily_table_block {
+    font-size: 0;
+    text-align: center;
+    margin: -1px;
+}
+
+.daily_table {
+    font-size: 16px;
+    display: inline-block;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+.daily_table tr.days {
+    font-weight: bold;
+    background-color: #ccc;
+}
+
+.daily_table td {
+    border-style: solid;
+    border-color: #777;
+    border-width: 1px;
+    width: 55px;
+}
+
+h3 {
+    color: #444;
+    font-variant: normal;
+    font-style: italic;
+    text-align: center;
+    font-weight: 100;
+    margin-top: -15px;
+}
+
+.spacer {
+    height: 50px;
+    visibility: hidden;
+}
+
+.expanses {
+    text-align: center;
+}
+
+.expanses table {
+    margin: auto;
+    padding: 10vw;
+    border-collapse: collapse;
+}
+
+.expanses th {
+    height: 30px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #777;
+    border-collapse: collapse;
+    background-color: #ccc;
+}
+
+.expanses td {
+    height: 30px;
+    width: 50vw;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #777;
+    border-collapse: collapse;
+}
+
+.expanses input {
+    background-color: Transparent;
+    background-repeat: no-repeat;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+}
+
+.expanses select {
+    background-color: Transparent;
+    background-repeat: no-repeat;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+}
+
+.expanses_row_odd {
+    background-color: #f0f0f0;
+}
+
+.expanses_row_even {
+    background-color: #ffffff;
+}
+
+#add_row_btn {
+    width: 80%;
+    height: 40px;
+    margin-top: 10px;
+    
+    border-radius: 8px;
+    border-style: outset;
+
+    font-weight: 900;
+    font-size: 1.5em;
+    color: white;
+
+    background-color: #b7bdc9;
+}

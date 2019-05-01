@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<!--
+
+Variables:
+month_name - name of month
+year - name of year
+
+total_disposable - total disposable amount
+day_disposable - daily (original) disposable amount
+expenses_total - sum of all expenses for given month
+remaining_amount - amount remaining for month
+
+real_day_disposable - real daily disposable amount
+avg_daily_expenses - average daily expenses
+saldo - saldo
+potential_remaining - potential remaining amount
+
+real_day_disposable_color - 'bad' or 'good'
+avg_daily_expenses_color - 'bad' or 'good'
+saldo_color - 'bad' or 'good'
+potential_remaining_color - 'bad' or 'good'
+
+days - vector of days in month consisting of:
+    day - number of given day in month
+    color - 'bad' or 'good'
+    amount - sum of all transactions for given day
+
+current_day - current day in format "28. Března"
+current_day_name - week day name of current day
+
+-->
+
+<html>
+<head>
+    <title>{{month_name}} {{year}} - MBudget</title>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/css/theme.css">
+    <script type="text/javascript" src="/js/script.js"></script>
+</head>
+<body>
+
+    <div class="heading">
+        <span class="arrow" id="arrow_previous">◀</span>
+        <span class="heading_label">{{month_name}} {{year}}</span>
+        <span class="arrow" id="arrow_next">▶</span>
+    </div>
+
+    <div class="info">
+
+        <table class="info_table">
+            <tr>
+                <td class="label">Celková disponibilní částka:</td>
+                <td class="monetary">{{total_disposable}}</td>
+            </tr>
+            <tr>
+                <td class="label">Původní disponibilní částka per day:</td>
+                <td class="monetary">{{day_disposable}}</td>
+            </tr>
+            <tr>
+                <td class="label">Dosavadní útrata:</td>
+                <td class="monetary">{{expenses_total}}</td>
+            </tr>
+            <tr>
+                <td class="label">Zbývající částka:</td>
+                <td class="monetary">{{remaining_amount}}</td>
+            </tr>
+        </table>
+
+        <div class="empty_space"></div>
+
+        <table class="info_table">
+            <tr>
+                <td class="label">Reálná disponibilní částka per day:</td>
+                <td class="monetary {{real_day_disposable_color}}">{{real_day_disposable}}</td>
+            </tr>
+            <tr>
+                <td class="label">Průměrná útrata per day:</td>
+                <td class="monetary {{avg_daily_expenses_color}}">{{avg_daily_expenses}}</td>
+            </tr>
+            <tr>
+                <td class="label">Saldo:</td>
+                <td class="monetary {{saldo_color}}">{{saldo}}</td>
+            </tr>
+            <tr>
+                <td class="label">Potenciální zůstatek:</td>
+                <td class="monetary {{potential_remaining_color}}">{{potential_remaining}}</td>
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="spacer"></div>
+
+    <hr/>
+
+    <div class="spacer"></div>
+
+    <div class="heading">
+        <span class="heading_label">Denní útrata</span>
+    </div>
+
+    <div class="daily_table_block">
+
+        {{#each days}}
+
+        <table class="daily_table" cellspacing="0">
+            <tr class="days">
+                <td>{{day}}</td>
+            </tr>
+            <tr>
+                <td class="{{color}}">{{amount}}</td>
+            </tr>
+        </table>
+
+        {{/each}}
+
+    </div>
+
+    <div class="spacer"></div>
+
+    <hr/>
+
+    <div class="spacer"></div>
+    
+    <div class="heading">
+        <span class="arrow" id="arrow_previous">◀</span>
+        <span class="heading_label">{{current_day}}</span>
+        <span class="arrow" id="arrow_next">▶</span>
+    </div>
+
+    <h3>{{current_day_name}}</h3>
+
+    <!--
+
+    <div class="expanses">
+
+        <table>
+
+            <tr>
+                <th>
+                    Částka
+                </th>
+                
+                <th>
+                    Kategorie
+                </th>
+                
+                <th>
+                    Poznámka
+                </th>
+            </tr>
+
+            <tr class="expanses_row_odd">
+                <td>
+                    <input type="text"/>
+                </td>
+
+                <td>
+                    <select class="category_select">
+                        <option>Jídlo</option>
+                        <option>Alkohol</option>
+                        <option>Čajovna</option>
+                    </select>
+                </td>
+                
+                <td>
+                    <input type="text" value="test"/>
+                </td>
+            </tr>
+
+            <tr class="expanses_row_even">
+                <td>
+                    <input type="text"/>
+                </td>
+
+                <td>
+                    <select class="category_select">
+                        <option>Jídlo</option>
+                        <option>Alkohol</option>
+                        <option>Čajovna</option>
+                    </select>
+                </td>
+                
+                <td>
+                    <input type="text" value="test"/>
+                </td>
+            </tr>
+
+            <tr class="expanses_row_odd">
+                <td>
+                    <input type="text"/>
+                </td>
+
+                <td>
+                    <select class="category_select">
+                        <option>Jídlo</option>
+                        <option>Alkohol</option>
+                        <option>Čajovna</option>
+                    </select>
+                </td>
+                
+                <td>
+                    <input type="text" value="test"/>
+                </td>
+            </tr>
+
+            <tr class="expanses_row_even">
+                <td>
+                    <input type="text"/>
+                </td>
+
+                <td>
+                    <select class="category_select">
+                        <option>Jídlo</option>
+                        <option>Alkohol</option>
+                        <option>Čajovna</option>
+                    </select>
+                </td>
+                
+                <td>
+                    <input type="text" value="test"/>
+                </td>
+            </tr>
+
+        </table>
+
+        <button id="add_row_btn">
+            +
+        </button> 
+
+    </div>
+
+    -->
+
+</body>
+</html> 
