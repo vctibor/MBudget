@@ -5,36 +5,28 @@ extern crate handlebars;
 #[macro_use] extern crate serde;
 #[macro_use] extern crate rouille;
 #[macro_use] extern crate serde_json;
-// #[macro_use] extern crate serde_derive;
 
 use std::collections::HashMap;
-
 use postgres::{Connection, TlsMode};
-
 use chrono::NaiveDate;
 use chrono::prelude::*;
-
 use once_cell::sync::OnceCell;
-
 use handlebars::Handlebars;
-
 use rouille::Response;
-
 use serde_json::Value;
 
 mod model;
 use model::*;
 
 mod data_access;
-
 use data_access::*;
 
-// postgres://malky:malky@192.168.196.186:5432/mbudget
+mod date_utils;
+use date_utils::*;
 
-// https://doc.rust-lang.org/cargo/reference/manifest.html
+mod calculations;
 
 const TEMPLATE_NAME: &str = "month";
-
 
 const CONNECTION_STR: &str = "postgres://malky:malky@192.168.196.97:5432/mbudget";
 
@@ -44,46 +36,14 @@ const DAILY_ALLOWANCE: f64 = 300.0;
 
 static HBS: OnceCell<Handlebars> = OnceCell::INIT;
 
-/// Get vector of days in given month and year.
-///
-/// Algorithm:
-///  - get first day of next month
-///  - get one day before - certain to be last day of given month
-///  - iterate in simple integer for loop from 1 to last day of month
-///  - build dates from numbers
-fn get_month_days(year: u32, month: u32) -> Vec<NaiveDate> {
-
-    let year = year as i32;    
-
-    let last_day = 
-        NaiveDate::from_ymd(year, month + 1, 1).pred().day();
-
-    let mut days: Vec<NaiveDate> = Vec::with_capacity(5);
-
-    for day in 1..(last_day+1) {
-        days.push(NaiveDate::from_ymd(year, month, day));
-    }
-
-    let days = days;
-
-    days
-}
-
-
-fn index_handler() -> Response {
-    
-    let now = now();
-    
+fn index_handler() -> Response {    
+    let now = now();    
     let current_month = now.month();
-
-    let current_year = now.year() as u32;
-    
-    //index_month_handler(current_year, current_month)
-    index_month_handler(current_year, 4)
+    let current_year = now.year() as u32;    
+    index_month_handler(current_year, current_month)
 }
 
-// TODO: show days without transactions
-fn index_month_handler(year: u32, month: u32) -> Response {    
+fn index_month_handler(year: u32, month: u32) -> Response {  
 
     let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None).unwrap();   
     
@@ -93,33 +53,14 @@ fn index_month_handler(year: u32, month: u32) -> Response {
 
     let mut model_days: Vec<Day> = Vec::new();
 
-    let month_sum = get_month_sum(&conn, year, month);
-
     for day in &days {
-
-        /*
-        let color = if sum.total_spent <= DAILY_ALLOWANCE {
-            Color::good
-        } else {
-            Color::bad
-        };
-        
-        days.push(Day {
-            day: sum.day,
-            color: color,
-            amount: sum.total_spent
-        });
-        */
 
         let day_in_month: u32 = day.day();
 
-
         let day_expense = expenses.get(&day_in_month);
-
 
         let mut color: Color = Color::Good;
         let mut amount: f64 = 0.0;
-
 
         if let Some(expense) = day_expense {
 
@@ -137,22 +78,65 @@ fn index_month_handler(year: u32, month: u32) -> Response {
             color: color,
             amount: amount
         });
-
     }
+
+    let days_in_month = days.last().unwrap().day();
+
+    /*
+    let current_date = now();
+
+    let date = if current_date.year() == year as i32 && current_date.month() == month {
+        current_date
+    } else {
+        NaiveDate::from_ymd(year as i32, month, days_in_month)
+    };
+    */
+
+    let date = {
+
+        let current_date = now();
+
+        if current_date.year() == year as i32 && current_date.month() == month {
+            current_date
+        } else {
+            NaiveDate::from_ymd(year as i32, month, days_in_month)
+        }
+
+    };
+    
+    let total_disposable = calculations::total_disposable(DAILY_ALLOWANCE, days_in_month);
+
+    let day_disposable = DAILY_ALLOWANCE;
+
+    let amount_spent = get_month_spent(&conn, year, month);
+
+    let amount_remaining = calculations::amount_remaining(total_disposable, amount_spent);
+
+    let real_daily_disposable = calculations::real_daily_disposable(
+        amount_remaining, date);
+
+    let average_daily_spent = calculations::average_daily_spent(
+        amount_spent, date);
+
+    let saldo = calculations::saldo(
+        real_daily_disposable, amount_spent, amount_remaining, date);
+
+    let potential_remaining = calculations::potential_remaining(
+        average_daily_spent, amount_remaining, date);
 
     let model = IndexModel {
         month_name: "Duben".to_string(),
-        year: 2019,
+        year: year,
 
-        total_disposable: 9300.0,
-        day_disposable: 300.0,
-        expenses_total: 5689.58,
-        remaining_amount: 3610.42,
+        total_disposable: total_disposable,
+        day_disposable: day_disposable,
+        expenses_total: amount_spent,
+        remaining_amount: amount_remaining,
 
-        real_day_disposable: 345.03,
-        avg_daily_expenses: 155.34,
-        saldo: 540.4,
-        potential_remaining: 2276.36,
+        real_day_disposable: real_daily_disposable,
+        avg_daily_expenses: average_daily_spent,
+        saldo: saldo,
+        potential_remaining: potential_remaining,
 
         real_day_disposable_color: Color::Good,
         avg_daily_expenses_color: Color::Bad,
@@ -173,13 +157,6 @@ fn index_month_handler(year: u32, month: u32) -> Response {
     
     rouille::Response::html(res)
 }
-
-fn now() -> NaiveDate {
-    let d = Local::now().date();
-    NaiveDate::from_ymd(d.year(), d.month(), d.day())
-}
-
-
 
 fn main() {
 

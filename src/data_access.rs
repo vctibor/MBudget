@@ -124,12 +124,14 @@ pub fn read_month_transactions(conn: &Connection, year: u32, month: u32) -> Hash
     map
 }
 
-pub fn get_month_sum(conn: &Connection, year: u32, month: u32) -> f64 {
+pub fn get_month_spent(conn: &Connection, year: u32, month: u32) -> f64 {
 
     let start = format!("{}-{}-01", year, month);
     let end = format!("{}-{}-01", year, month + 1);
 
-    let query = format!("select cast(sum(amount) as bigint) from transactions where date >= '{}' and date < '{}'",
+    let query = format!(
+        "select cast(sum(amount) as bigint) from transactions
+        where date >= '{}' and date < '{}'",
         start, end);
 
     let query_result: &postgres::rows::Rows =
