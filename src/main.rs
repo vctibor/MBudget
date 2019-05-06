@@ -25,6 +25,7 @@ mod date_utils;
 use date_utils::*;
 
 mod calculations;
+use calculations::*;
 
 const TEMPLATE_NAME: &str = "month";
 
@@ -104,24 +105,24 @@ fn index_month_handler(year: u32, month: u32) -> Response {
 
     };
     
-    let total_disposable = calculations::total_disposable(DAILY_ALLOWANCE, days_in_month);
+    let total_disposable = total_disposable(DAILY_ALLOWANCE, days_in_month);
 
     let day_disposable = DAILY_ALLOWANCE;
 
     let amount_spent = get_month_spent(&conn, year, month);
 
-    let amount_remaining = calculations::amount_remaining(total_disposable, amount_spent);
+    let amount_remaining = amount_remaining(total_disposable, amount_spent);
 
-    let real_daily_disposable = calculations::real_daily_disposable(
+    let (real_daily_disposable, real_daily_disposable_color) = real_daily_disposable(
         amount_remaining, date);
 
-    let average_daily_spent = calculations::average_daily_spent(
+    let (average_daily_spent, average_daily_spent_color) = average_daily_spent(
         amount_spent, date);
 
-    let saldo = calculations::saldo(
+    let (saldo, saldo_color) = saldo(
         real_daily_disposable, amount_spent, amount_remaining, date);
 
-    let potential_remaining = calculations::potential_remaining(
+    let (potential_remaining, potential_remaining_color) = potential_remaining(
         average_daily_spent, amount_remaining, date);
 
     let model = IndexModel {
@@ -138,10 +139,10 @@ fn index_month_handler(year: u32, month: u32) -> Response {
         saldo: saldo,
         potential_remaining: potential_remaining,
 
-        real_day_disposable_color: Color::Good,
-        avg_daily_expenses_color: Color::Bad,
-        saldo_color: Color::Good,
-        potential_remaining_color: Color::Bad,
+        real_day_disposable_color: real_daily_disposable_color,
+        avg_daily_expenses_color: average_daily_spent_color,
+        saldo_color: saldo_color,
+        potential_remaining_color: potential_remaining_color,
 
         days: model_days,
 

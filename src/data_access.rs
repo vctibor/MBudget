@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 use postgres::Connection;
-use chrono::NaiveDate;
+//use chrono::NaiveDate;
 //use model::Transaction;
 
 use model::Day;
 
+/*
 #[derive(Debug)]
 pub struct Transaction {
     pub id: i32,
@@ -13,6 +14,7 @@ pub struct Transaction {
     pub amount: f64,
     pub description: Option<String>
 }
+*/
 
 #[derive(Debug)]
 pub struct DailyExpense {
@@ -31,15 +33,17 @@ struct Month {
     weeks: Vec<Day>
 }
 
+/*
 #[derive(Debug)]
 struct Category {
     id: i32,
     name: String
 }
-
+*/
 
 const SCALE: f64 = 1_000_000.0;
 
+/*
 pub fn read_day_transactions(conn: &Connection, day: u32, month: u32, year: u32) -> Vec<Transaction> {
 
     /*
@@ -83,6 +87,7 @@ pub fn read_day_transactions(conn: &Connection, day: u32, month: u32, year: u32)
 
     vec
 }
+*/
 
 pub fn read_month_transactions(conn: &Connection, year: u32, month: u32) -> HashMap<u32, DailyExpense> {
     
@@ -137,7 +142,11 @@ pub fn get_month_spent(conn: &Connection, year: u32, month: u32) -> f64 {
     let query_result: &postgres::rows::Rows =
         &conn.query(&query, &[]).expect("Query failed.");
 
-    let result: i64 = query_result.get(0).get(0);
+    let result: Option<i64> = query_result.get(0).get(0);
 
-    (result as f64) / SCALE
-}
+    match result {
+        Some(val) => { (val as f64) / SCALE }
+
+        None => { 0.0 }
+    }
+} 
