@@ -1,51 +1,13 @@
 use std::collections::HashMap;
 use postgres::Connection;
-//use chrono::NaiveDate;
-//use model::Transaction;
-
-use model::Day;
-
-/*
-#[derive(Debug)]
-pub struct Transaction {
-    pub id: i32,
-    pub date: NaiveDate,
-    pub category: Option<i32>,
-    pub amount: f64,
-    pub description: Option<String>
-}
-*/
-
-#[derive(Debug)]
-pub struct DailyExpense {
-    pub day: u32,
-    pub month: u32,
-    pub year: u32,
-    pub total_spent: f64,
-    pub trans_count: i64
-}
-
-#[derive(Serialize, Deserialize)]
-struct Month {
-    month: u32,
-    year: u32,
-    name: String,
-    weeks: Vec<Day>
-}
-
-/*
-#[derive(Debug)]
-struct Category {
-    id: i32,
-    name: String
-}
-*/
+use model::Transaction;
+use model::*;
 
 const SCALE: f64 = 1_000_000.0;
 
-/*
-pub fn read_day_transactions(conn: &Connection, day: u32, month: u32, year: u32) -> Vec<Transaction> {
-
+pub fn read_day_transactions(conn: &Connection, year: i32, month: u32, day: u32)
+    -> Vec<Transaction>
+{
     /*
     This isn't perfect - we should use query interpolation
         instead of string concatenation for dynamic parameters
@@ -87,9 +49,10 @@ pub fn read_day_transactions(conn: &Connection, day: u32, month: u32, year: u32)
 
     vec
 }
-*/
 
-pub fn read_month_transactions(conn: &Connection, year: u32, month: u32) -> HashMap<u32, DailyExpense> {
+pub fn read_month_transactions(conn: &Connection, year: i32, month: u32)
+    -> HashMap<u32, DailyExpense>
+{
     
     let month = month as f64;
     let year = year as f64;
@@ -129,7 +92,7 @@ pub fn read_month_transactions(conn: &Connection, year: u32, month: u32) -> Hash
     map
 }
 
-pub fn get_month_spent(conn: &Connection, year: u32, month: u32) -> f64 {
+pub fn get_month_spent(conn: &Connection, year: i32, month: u32) -> f64 {
 
     let start = format!("{}-{}-01", year, month);
     let end = format!("{}-{}-01", year, month + 1);

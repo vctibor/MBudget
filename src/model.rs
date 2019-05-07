@@ -1,9 +1,27 @@
-//use chrono::NaiveDate;
+use chrono::NaiveDate;
 //use serde_json::Value;
 
 // data model
 
-/*
+#[derive(Debug)]
+pub struct Transaction {
+    pub id: i32,
+    pub date: NaiveDate,
+    pub category: Option<i32>,
+    pub amount: f64,
+    pub description: Option<String>
+}
+
+
+#[derive(Debug)]
+pub struct DailyExpense {
+    pub day: u32,
+    pub month: u32,
+    pub year: u32,
+    pub total_spent: f64,
+    pub trans_count: i64
+}
+
 #[derive(Serialize, Deserialize)]
 struct Month {
     month: u32,
@@ -12,14 +30,11 @@ struct Month {
     weeks: Vec<Day>
 }
 
-
-
 #[derive(Debug)]
 struct Category {
     id: i32,
     name: String
 }
-*/
 
 
 
@@ -39,25 +54,31 @@ pub struct Day {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct IndexModel {
+pub struct InfoCalculation {
 
-    pub month_name: String,
-    pub year: u32,
-    
-    pub total_disposable: f64,
-    pub day_disposable: f64,
-    pub expenses_total: f64,
-    pub remaining_amount: f64,
+    pub total_disposable: String,
+    pub day_disposable: String,
+    pub expenses_total: String,
+    pub remaining_amount: String,
 
-    pub real_day_disposable: f64,
-    pub avg_daily_expenses: f64,
-    pub saldo: f64,
-    pub potential_remaining: f64,
+    pub real_day_disposable: String,
+    pub avg_daily_expenses: String,
+    pub saldo: String,
+    pub potential_remaining: String,
 
     pub real_day_disposable_color: Color,
     pub avg_daily_expenses_color: Color,
     pub saldo_color: Color,
-    pub potential_remaining_color: Color,
+    pub potential_remaining_color: Color
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct IndexModel {
+
+    pub month_name: &'static str,
+    pub year: i32,
+    
+    pub info: InfoCalculation,
 
     pub days: Vec<Day>,
 

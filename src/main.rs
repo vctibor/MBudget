@@ -37,14 +37,11 @@ const DAILY_ALLOWANCE: f64 = 300.0;
 
 static HBS: OnceCell<Handlebars> = OnceCell::INIT;
 
-fn index_handler() -> Response {    
-    let now = now();    
-    let current_month = now.month();
-    let current_year = now.year() as u32;    
-    index_month_handler(current_year, current_month)
+fn index_handler() -> Response {
+    index_month_handler(now().year(), now().month(), now().day())
 }
 
-fn index_month_handler(year: u32, month: u32) -> Response {  
+fn index_month_handler(year: i32, month: u32, day: u32) -> Response {  
 
     let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None).unwrap();   
     
@@ -81,73 +78,39 @@ fn index_month_handler(year: u32, month: u32) -> Response {
         });
     }
 
-    let days_in_month = days.last().unwrap().day();
-
-    /*
-    let current_date = now();
-
-    let date = if current_date.year() == year as i32 && current_date.month() == month {
-        current_date
-    } else {
-        NaiveDate::from_ymd(year as i32, month, days_in_month)
-    };
-    */
-
-    let date = {
-
-        let current_date = now();
-
-        if current_date.year() == year as i32 && current_date.month() == month {
-            current_date
-        } else {
-            NaiveDate::from_ymd(year as i32, month, days_in_month)
-        }
-
-    };
     
-    let total_disposable = total_disposable(DAILY_ALLOWANCE, days_in_month);
+    
+    let date = NaiveDate::from_ymd(year, month, day);
 
-    let day_disposable = DAILY_ALLOWANCE;
+    let month_name = get_month_name(month);
+
+    let day_name = get_weekday_name(date.weekday());
+
+    //let daily_disposable = DAILY_ALLOWANCE;
 
     let amount_spent = get_month_spent(&conn, year, month);
 
-    let amount_remaining = amount_remaining(total_disposable, amount_spent);
+    //et day_transactions = read_day_transactions(&conn, year, month, day);
 
-    let (real_daily_disposable, real_daily_disposable_color) = real_daily_disposable(
-        amount_remaining, date);
 
-    let (average_daily_spent, average_daily_spent_color) = average_daily_spent(
-        amount_spent, date);
+    // If we are handling current month, we perform calculations for current date,
+    //  otherwise calculate values for last day of given month.
+    let calculation_date = if now().year() == year && now().month() == month {
+        now()
+    } else {
+        let last_day = days.last().unwrap().day();
+        NaiveDate::from_ymd(year, month, last_day)
+    };
 
-    let (saldo, saldo_color) = saldo(
-        real_daily_disposable, amount_spent, amount_remaining, date);
-
-    let (potential_remaining, potential_remaining_color) = potential_remaining(
-        average_daily_spent, amount_remaining, date);
+    let info = get_calculations(DAILY_ALLOWANCE, amount_spent, calculation_date);
 
     let model = IndexModel {
-        month_name: "Duben".to_string(),
+        month_name: month_name,
         year: year,
-
-        total_disposable: total_disposable,
-        day_disposable: day_disposable,
-        expenses_total: amount_spent,
-        remaining_amount: amount_remaining,
-
-        real_day_disposable: real_daily_disposable,
-        avg_daily_expenses: average_daily_spent,
-        saldo: saldo,
-        potential_remaining: potential_remaining,
-
-        real_day_disposable_color: real_daily_disposable_color,
-        avg_daily_expenses_color: average_daily_spent_color,
-        saldo_color: saldo_color,
-        potential_remaining_color: potential_remaining_color,
-
+        info: info,
         days: model_days,
-
-        current_day: "4. Dubna".to_string(),
-        current_day_name: "Čtvrtek".to_string()
+        current_day: format!("{}. {}", day, month_name),
+        current_day_name: day_name
     };
 
     let json_value: Value = json!(model);
@@ -209,8 +172,8 @@ fn main() {
             (GET) (/) => { index_handler() },
 
             
-            (GET) (/{year: u32}/{month: u32}) => {
-                index_month_handler(year, month)
+            (GET) (/{year: i32}/{month: u32}/{day: u32}) => {
+                index_month_handler(year, month, day)
             },
 
             /*

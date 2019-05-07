@@ -51,19 +51,19 @@ current_day_name - week day name of current day
         <table class="info_table">
             <tr>
                 <td class="label">Celková disponibilní částka:</td>
-                <td class="monetary">{{total_disposable}}</td>
+                <td class="monetary">{{info.total_disposable}}</td>
             </tr>
             <tr>
                 <td class="label">Původní disponibilní částka per day:</td>
-                <td class="monetary">{{day_disposable}}</td>
+                <td class="monetary">{{info.day_disposable}}</td>
             </tr>
             <tr>
                 <td class="label">Dosavadní útrata:</td>
-                <td class="monetary">{{expenses_total}}</td>
+                <td class="monetary">{{info.expenses_total}}</td>
             </tr>
             <tr>
                 <td class="label">Zbývající částka:</td>
-                <td class="monetary">{{remaining_amount}}</td>
+                <td class="monetary">{{info.remaining_amount}}</td>
             </tr>
         </table>
 
@@ -72,19 +72,19 @@ current_day_name - week day name of current day
         <table class="info_table">
             <tr>
                 <td class="label">Reálná disponibilní částka per day:</td>
-                <td class="monetary {{real_day_disposable_color}}">{{real_day_disposable}}</td>
+                <td class="monetary {{info.real_day_disposable_color}}">{{info.real_day_disposable}}</td>
             </tr>
             <tr>
                 <td class="label">Průměrná útrata per day:</td>
-                <td class="monetary {{avg_daily_expenses_color}}">{{avg_daily_expenses}}</td>
+                <td class="monetary {{info.avg_daily_expenses_color}}">{{info.avg_daily_expenses}}</td>
             </tr>
             <tr>
                 <td class="label">Saldo:</td>
-                <td class="monetary {{saldo_color}}">{{saldo}}</td>
+                <td class="monetary {{info.saldo_color}}">{{info.saldo}}</td>
             </tr>
             <tr>
                 <td class="label">Potenciální zůstatek:</td>
-                <td class="monetary {{potential_remaining_color}}">{{potential_remaining}}</td>
+                <td class="monetary {{info.potential_remaining_color}}">{{info.potential_remaining}}</td>
             </tr>
         </table>
 
