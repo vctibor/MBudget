@@ -1,9 +1,9 @@
+//! Contains models for data access and UI.
+
 use chrono::NaiveDate;
-//use serde_json::Value;
 
-// data model
-
-#[derive(Debug)]
+/// Represents single transaction.
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Transaction {
     pub id: i32,
     pub date: NaiveDate,
@@ -12,7 +12,7 @@ pub struct Transaction {
     pub description: Option<String>
 }
 
-
+/// Represents summarization of all transactions for given day.
 #[derive(Debug)]
 pub struct DailyExpense {
     pub day: u32,
@@ -35,10 +35,6 @@ struct Category {
     id: i32,
     name: String
 }
-
-
-
-// view models
 
 #[derive(Serialize, Deserialize)]
 pub enum Color {
@@ -72,10 +68,14 @@ pub struct InfoCalculation {
     pub potential_remaining_color: Color
 }
 
+/// This is the main view model. It represents data for given day and month.
+///  It gets serialized into JSON and passed to Handlebars 'index' template,
+///  which creates HTML page based on data in this model and template.
 #[derive(Serialize, Deserialize)]
 pub struct IndexModel {
 
     pub month_name: &'static str,
+
     pub year: i32,
     
     pub info: InfoCalculation,
@@ -83,5 +83,8 @@ pub struct IndexModel {
     pub days: Vec<Day>,
 
     pub current_day: String,
-    pub current_day_name: String
+    
+    pub current_day_name: String,
+
+    pub transactions: Vec<Transaction>
 }

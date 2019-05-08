@@ -6,6 +6,11 @@ extern crate handlebars;
 #[macro_use] extern crate rouille;
 #[macro_use] extern crate serde_json;
 
+mod model;
+mod data_access;
+mod date_utils;
+mod calculations;
+
 use std::collections::HashMap;
 use postgres::{Connection, TlsMode};
 use chrono::NaiveDate;
@@ -14,25 +19,20 @@ use once_cell::sync::OnceCell;
 use handlebars::Handlebars;
 use rouille::Response;
 use serde_json::Value;
-
-mod model;
-use model::*;
-
-mod data_access;
 use data_access::*;
-
-mod date_utils;
 use date_utils::*;
-
-mod calculations;
+use model::*;
 use calculations::*;
 
-const TEMPLATE_NAME: &str = "month";
+/// String used to register template in Handlebars templating engine.
+const TEMPLATE_NAME: &str = "index_template";
 
+/// Database connection string.
+/// **TODO: Move into args/configuration.**
 const CONNECTION_STR: &str = "postgres://malky:malky@192.168.196.97:5432/mbudget";
 
-// Amount of money allowed to spend each day.
-// TODO: Move to DB and read on each HTTP request.
+/// Amount of money allowed to spend each day.
+/// **TODO: Move to DB and read on each HTTP request.**
 const DAILY_ALLOWANCE: f64 = 300.0;
 
 static HBS: OnceCell<Handlebars> = OnceCell::INIT;
@@ -86,11 +86,10 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
 
     let day_name = get_weekday_name(date.weekday());
 
-    //let daily_disposable = DAILY_ALLOWANCE;
 
     let amount_spent = get_month_spent(&conn, year, month);
 
-    //et day_transactions = read_day_transactions(&conn, year, month, day);
+    let day_transactions = read_day_transactions(&conn, year, month, day);
 
 
     // If we are handling current month, we perform calculations for current date,
@@ -110,7 +109,8 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         info: info,
         days: model_days,
         current_day: format!("{}. {}", day, month_name),
-        current_day_name: day_name
+        current_day_name: day_name,
+        transactions: day_transactions
     };
 
     let json_value: Value = json!(model);

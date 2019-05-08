@@ -29,12 +29,15 @@ days - vector of days in month consisting of:
 current_day - current day in format "28. Března"
 current_day_name - week day name of current day
 
+transactions - list of all transactions for given day
+
 -->
 
 <html>
 <head>
     <title>{{month_name}} {{year}} - MBudget</title>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <link rel="stylesheet" type="text/css" href="/css/theme.css">
     <script type="text/javascript" src="/js/script.js"></script>
 </head>
@@ -88,9 +91,9 @@ current_day_name - week day name of current day
             </tr>
         </table>
 
-    </div>
-
     <div class="spacer"></div>
+
+    </div>
 
     <hr/>
 
@@ -131,8 +134,6 @@ current_day_name - week day name of current day
 
     <h3>{{current_day_name}}</h3>
 
-    <!--
-
     <div class="expanses">
 
         <table>
@@ -140,89 +141,30 @@ current_day_name - week day name of current day
             <tr>
                 <th>
                     Částka
-                </th>
-                
+                </th>                
                 <th>
                     Kategorie
-                </th>
-                
+                </th>                
                 <th>
                     Poznámka
                 </th>
             </tr>
 
+            {{#each transactions}}
+            
             <tr class="expanses_row_odd">
                 <td>
-                    <input type="text"/>
+                    {{amount}}
                 </td>
-
                 <td>
-                    <select class="category_select">
-                        <option>Jídlo</option>
-                        <option>Alkohol</option>
-                        <option>Čajovna</option>
-                    </select>
+                    {{category}}
                 </td>
-                
                 <td>
-                    <input type="text" value="test"/>
+                    {{description}}
                 </td>
             </tr>
 
-            <tr class="expanses_row_even">
-                <td>
-                    <input type="text"/>
-                </td>
-
-                <td>
-                    <select class="category_select">
-                        <option>Jídlo</option>
-                        <option>Alkohol</option>
-                        <option>Čajovna</option>
-                    </select>
-                </td>
-                
-                <td>
-                    <input type="text" value="test"/>
-                </td>
-            </tr>
-
-            <tr class="expanses_row_odd">
-                <td>
-                    <input type="text"/>
-                </td>
-
-                <td>
-                    <select class="category_select">
-                        <option>Jídlo</option>
-                        <option>Alkohol</option>
-                        <option>Čajovna</option>
-                    </select>
-                </td>
-                
-                <td>
-                    <input type="text" value="test"/>
-                </td>
-            </tr>
-
-            <tr class="expanses_row_even">
-                <td>
-                    <input type="text"/>
-                </td>
-
-                <td>
-                    <select class="category_select">
-                        <option>Jídlo</option>
-                        <option>Alkohol</option>
-                        <option>Čajovna</option>
-                    </select>
-                </td>
-                
-                <td>
-                    <input type="text" value="test"/>
-                </td>
-            </tr>
-
+            {{/each}}
         </table>
 
         <button id="add_row_btn">
@@ -230,8 +172,6 @@ current_day_name - week day name of current day
         </button> 
 
     </div>
-
-    -->
 
 </body>
 </html> 

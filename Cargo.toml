@@ -11,7 +11,7 @@ description = "Simple budgeting application with web interface."
 postgres = { version = "0.15", features = ["with-chrono"] }
 
 # Date keeping
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 
 # Commandline argument parsing
 # clap = "2.32.0"

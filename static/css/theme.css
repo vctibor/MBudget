@@ -38,21 +38,30 @@ hr {
     width: 10vw;
 }
 
+
+
 .info_table {
-    display: inline-block;
-} 
+    text-align: left;
+    text-shadow: none;
+}
+
+@media screen and (min-width: 800px) {
+    .info_table {
+        display: inline-block;
+    }
+}
 
 .info_table td.label {
-    font-weight: bold;
+    width: 300px;
     text-align: left;
-    width: 18vw;
+    text-shadow: none;
 }
 
 .info_table td.monetary {
     width: 80px;
-    text-align: center;
-    text-shadow: none;
-}   
+    font-weight: bold;
+    text-align: right;
+}
 
 .Good {
     background-color: #ccffcc;

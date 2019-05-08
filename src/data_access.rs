@@ -1,3 +1,5 @@
+//! Abstraction layer for reading and writing data to/from PostgresSQL.
+
 use std::collections::HashMap;
 use postgres::Connection;
 use model::Transaction;
@@ -5,18 +7,16 @@ use model::*;
 
 const SCALE: f64 = 1_000_000.0;
 
+///Get list of all unique transactions in given day.
+///This isn't perfect - we should use query interpolation
+///    instead of string concatenation for dynamic parameters
+///    because of sql injection; however, that doesn't work for some reason.
+///I'm leaving it this way for now (a.k.a. forever) because it's private
+///    application, where security is obtained through different means
+///    (i.e. not being exposed to Internet).
 pub fn read_day_transactions(conn: &Connection, year: i32, month: u32, day: u32)
     -> Vec<Transaction>
 {
-    /*
-    This isn't perfect - we should use query interpolation
-        instead of string concatenation for dynamic parameters
-        because of sql injection; however, that doesn't work for some reason.
-    I'm leaving it this way for now (a.k.a. forever) because it's private
-        application, where security is obtained through different means
-        (i.e. not being exposed to Internet).
-    */
-
     let query = format!(
         "select * from transactions where date = '{y}-{m}-{d}'",
         y = year, m = month, d = day);
@@ -50,10 +50,10 @@ pub fn read_day_transactions(conn: &Connection, year: i32, month: u32, day: u32)
     vec
 }
 
+/// Gets list of sums of total amount spent per each day in given month.
 pub fn read_month_transactions(conn: &Connection, year: i32, month: u32)
     -> HashMap<u32, DailyExpense>
-{
-    
+{    
     let month = month as f64;
     let year = year as f64;
 
@@ -92,6 +92,7 @@ pub fn read_month_transactions(conn: &Connection, year: i32, month: u32)
     map
 }
 
+/// Gets total sum of amount spent for given month.
 pub fn get_month_spent(conn: &Connection, year: i32, month: u32) -> f64 {
 
     let start = format!("{}-{}-01", year, month);

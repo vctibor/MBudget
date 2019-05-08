@@ -1,6 +1,9 @@
+//! Helper functions for common tasks upon date variables.
+
 use chrono::NaiveDate;
 use chrono::prelude::*;
 
+/// Gets current date as chrono::NaiveDate.
 pub fn now() -> NaiveDate {
     let d = Local::now().date();
     NaiveDate::from_ymd(d.year(), d.month(), d.day())
