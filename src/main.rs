@@ -101,11 +101,40 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         NaiveDate::from_ymd(year, month, last_day)
     };
 
+    
+    let addr_nxt_month = {
+        let nxt_month = next_month(date);
+        format!("/{}/{}/{}", nxt_month.year(), nxt_month.month(), nxt_month.day())
+    };
+    
+    let addr_prv_month = {
+        let prv_month = prev_month(date);
+        format!("/{}/{}/{}", prv_month.year(), prv_month.month(), prv_month.day())
+    };
+    
+    let addr_nxt_day = {
+        let nxt_day = date.succ();
+        format!("/{}/{}/{}", nxt_day.year(), nxt_day.month(), nxt_day.day())
+    };
+    
+    let addr_prv_day = {
+        let prv_day = date.pred();
+        format!("/{}/{}/{}", prv_day.year(), prv_day.month(), prv_day.day())
+    };
+
+
     let info = get_calculations(DAILY_ALLOWANCE, amount_spent, calculation_date);
 
     let model = IndexModel {
-        month_name: month_name,
+        month_name: month_name.clone(),
         year: year,
+        //month: month,
+        //day: day,
+        //last_day: last_day(year, month),
+        addr_nxt_month: addr_nxt_month,
+        addr_prv_month: addr_prv_month,
+        addr_nxt_day: addr_nxt_day,
+        addr_prv_day: addr_prv_day,
         info: info,
         days: model_days,
         current_day: format!("{}. {}", day, month_name),

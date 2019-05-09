@@ -42,6 +42,6 @@ rouille = "2.2.0"
 name = "mbudget"
 path = "src/main.rs"
 
-[[bin]]
-name = "calculate"
-path = "src/calculate.rs"
+#[[bin]]
+#name = "calculate"
+#path = "src/calculate.rs"

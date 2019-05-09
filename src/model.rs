@@ -74,17 +74,45 @@ pub struct InfoCalculation {
 #[derive(Serialize, Deserialize)]
 pub struct IndexModel {
 
-    pub month_name: &'static str,
+    /// Name of the displayed month.
+    pub month_name: String,
 
+    /// Displayed year.
     pub year: i32,
+
+    // /// Displayed month.
+    // pub month: u32,
+
+    // /// Displayed day.
+    // pub day: u32,
+
+    // /// Last day of displayed month.
+    //pub last_day: u32,
+
+    /// address of next month
+    pub addr_nxt_month: String,
     
+    /// address of previous month
+    pub addr_prv_month: String,
+    
+    /// address of next day
+    pub addr_nxt_day: String,
+    
+    /// address of previous day
+    pub addr_prv_day: String,
+    
+    /// Summarization calculations.
     pub info: InfoCalculation,
 
+    /// List of summarizations of transactions for each day.
     pub days: Vec<Day>,
 
+    /// Current day in format *d*. *M*.
     pub current_day: String,
     
+    /// Name of current day in week.
     pub current_day_name: String,
 
+    /// List of transactions for displayed day.
     pub transactions: Vec<Transaction>
 }

@@ -93,10 +93,12 @@ pub fn read_month_transactions(conn: &Connection, year: i32, month: u32)
 }
 
 /// Gets total sum of amount spent for given month.
+/// Note we have to handle december specifically!
 pub fn get_month_spent(conn: &Connection, year: i32, month: u32) -> f64 {
 
+    let next_month = if month == 12 { 1 } else { month + 1 };
     let start = format!("{}-{}-01", year, month);
-    let end = format!("{}-{}-01", year, month + 1);
+    let end = format!("{}-{}-01", year, next_month);
 
     let query = format!(
         "select cast(sum(amount) as bigint) from transactions

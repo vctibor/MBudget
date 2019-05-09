@@ -6,6 +6,11 @@ Variables:
 month_name - name of month
 year - name of year
 
+addr_nxt_month - address of next month
+addr_prv_month - address of previous month
+addr_nxt_day - address of next day
+addr_prv_day - address of previous day
+
 total_disposable - total disposable amount
 day_disposable - daily (original) disposable amount
 expenses_total - sum of all expenses for given month
@@ -37,16 +42,28 @@ transactions - list of all transactions for given day
 <head>
     <title>{{month_name}} {{year}} - MBudget</title>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <link rel="stylesheet" type="text/css" href="/css/theme.css">
     <script type="text/javascript" src="/js/script.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
 </head>
 <body>
 
+    <!--
+    <input id="year" type="hidden" value="{{year}}"/>
+    <input id="month" type="hidden" value="{{month}}"/>
+    <input id="day" type="hidden" value="{{day}}"/>
+    <input id="last_day" type="hidden" value="{{last_day}}"/>
+    -->
+
+    <input id="addr_nxt_month" type="hidden" value="{{addr_nxt_month}}"/>
+    <input id="addr_prv_month" type="hidden" value="{{addr_prv_month}}"/>
+    <input id="addr_nxt_day" type="hidden" value="{{addr_nxt_day}}"/>
+    <input id="addr_prv_day" type="hidden" value="{{addr_prv_day}}"/>
+
     <div class="heading">
-        <span class="arrow" id="arrow_previous">◀</span>
+        <span class="arrow" id="arrow_previous_month">◀</span>
         <span class="heading_label">{{month_name}} {{year}}</span>
-        <span class="arrow" id="arrow_next">▶</span>
+        <span class="arrow" id="arrow_next_month">▶</span>
     </div>
 
     <div class="info">
@@ -127,9 +144,9 @@ transactions - list of all transactions for given day
     <div class="spacer"></div>
     
     <div class="heading">
-        <span class="arrow" id="arrow_previous">◀</span>
+        <span class="arrow" id="arrow_previous_day">◀</span>
         <span class="heading_label">{{current_day}}</span>
-        <span class="arrow" id="arrow_next">▶</span>
+        <span class="arrow" id="arrow_next_day">▶</span>
     </div>
 
     <h3>{{current_day_name}}</h3>

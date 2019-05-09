@@ -3,9 +3,10 @@
 use chrono::NaiveDate;
 use chrono::prelude::*;
 use model::*;
+use date_utils::last_day;
 
 /// Calculate total disposable amount for month.
-pub fn total_disposable(
+fn total_disposable(
     daily_disposable: f64,
     days_in_month: u32) -> f64
 {
@@ -15,7 +16,7 @@ pub fn total_disposable(
 }
 
 /// Calculate remaining disposable amount for month.
-pub fn amount_remaining(
+fn amount_remaining(
     total_disposable: f64,
     amount_spent: f64) -> f64
 {
@@ -26,7 +27,7 @@ pub fn amount_remaining(
 /// This calculation actually makes sense only if it's for current month,
 ///   and there's larger than zero number of remaining days till end of month.
 /// In all other cases we just return entire remaining amount.
-pub fn real_daily_disposable(
+fn real_daily_disposable(
     amount_remaining: f64,
     daily_disposable: f64,
     current_date: NaiveDate) -> (f64, Color)
@@ -34,8 +35,7 @@ pub fn real_daily_disposable(
     let year = current_date.year();
     let month = current_date.month();
 
-    let last_day = 
-        NaiveDate::from_ymd(year, month + 1, 1).pred().day();
+    let last_day = last_day(year, month);
 
     let real_daily_disposable = if last_day <= current_date.day() {
         amount_remaining
@@ -55,7 +55,7 @@ pub fn real_daily_disposable(
 }
 
 /// Calculate average amount spent per day in given month.
-pub fn average_daily_spent(
+fn average_daily_spent(
     amount_spent: f64,
     daily_disposable: f64,
     current_date: NaiveDate) -> (f64, Color)
@@ -75,7 +75,7 @@ pub fn average_daily_spent(
 /// Potential remain is amount remaining at the end of month,
 ///   if average spent per day won't change.
 /// Thus, it's calculated as difference between 
-pub fn potential_remaining(
+fn potential_remaining(
     average_daily_spent: f64,
     amount_remaining: f64,
     current_date: NaiveDate) -> (f64, Color)
@@ -84,8 +84,7 @@ pub fn potential_remaining(
     let month = current_date.month();
     let day = current_date.day();
 
-    let last_day = 
-        NaiveDate::from_ymd(year, month + 1, 1).pred().day();
+    let last_day = last_day(year, month);
 
     let potential_remaining = if last_day <= current_date.day() {
         amount_remaining
@@ -107,20 +106,17 @@ pub fn potential_remaining(
 ///   and what was actually spend.
 /// It is calculated as difference between real_daily_disposable times day in month
 ///   and total amount spent.
-pub fn saldo(
+fn saldo(
     real_daily_disposable: f64,
     amount_spent: f64,
     amount_remaining: f64,
-    current_date: NaiveDate) -> (f64, Color)
+    date: NaiveDate) -> (f64, Color)
 {
-    let year = current_date.year();
-    let month = current_date.month();
-    let day = current_date.day() as f64;
+    let day = date.day() as f64;
 
-    let last_day = 
-        NaiveDate::from_ymd(year, month + 1, 1).pred().day();
+    let last_day = last_day(date.year(), date.month());
 
-    let saldo = if last_day <= current_date.day() {
+    let saldo = if last_day <= date.day() {
         amount_remaining
     } else {
         (real_daily_disposable * day) - amount_spent
@@ -138,10 +134,9 @@ pub fn saldo(
 pub fn get_calculations(
     daily_disposable: f64,
     amount_spent: f64,
-    date: NaiveDate) -> InfoCalculation {
-
-    let last_day = 
-        NaiveDate::from_ymd(date.year(), date.month() + 1, 1).pred().day();
+    date: NaiveDate) -> InfoCalculation
+{
+    let last_day = last_day(date.year(), date.month());
 
     let total_disposable = total_disposable(daily_disposable, last_day);
 

@@ -40,13 +40,6 @@ Je definována *celková disponibilní částka* pro dané zúčtovací období.
 
 Tedy, pokud každý den utratím přesně *PPŮPD*, pak na konci zúčtovacího období zústane z *počáteční disponibilní částky* 0,-.
 
-Každý výdaj je zaznamenán v podobě:
-
-- UUID (umělý primární klíč, because why not)
-- datum a čas
-- částka (pozitivní pro výdaje, negativní pro příjmy)
-- kategorie (pro budoucí analýzu)
-
 Pro každý den se počítá *suma denní útraty* jako triviální suma všech částek pro všechny transakce v daném dni v měsíci v roce.
 
 Pro daný den v měsíci *cd* (číselně rovný počtu uplynulých dní v měsíci) a zbývající dni v měsíci *rd* můžeme spočíst následující proměnné.
