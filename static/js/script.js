@@ -1,5 +1,7 @@
 const ENTER_KEY_CODE = 13;
 
+const NEW_ROW = '<tr class="expanses_row_odd"><td></td><td></td><td></td></tr>';
+
 /*
 window.onload = function(e) {
     alert("Hello, World!");
@@ -22,37 +24,58 @@ document.addEventListener('DOMContentLoaded', init, false);
 
 function init() {
 
-    let addr_nxt_month = document.getElementById('addr_nxt_month').value;
-    let addr_prv_month = document.getElementById('addr_prv_month').value;
-    let addr_nxt_day = document.getElementById('addr_nxt_day').value;
-    let addr_prv_day = document.getElementById('addr_prv_day').value;
+  let addr_nxt_month = document.getElementById('addr_nxt_month').value;
+  let addr_prv_month = document.getElementById('addr_prv_month').value;
+  let addr_nxt_day = document.getElementById('addr_nxt_day').value;
+  let addr_prv_day = document.getElementById('addr_prv_day').value;
 
-    let arrow_next_month = document.getElementById('arrow_next_month');
+  let arrow_next_month = document.getElementById('arrow_next_month');
 
-    arrow_next_month.addEventListener('click', function() {
-        location.assign(addr_nxt_month);
-    });
+  arrow_next_month.addEventListener('click', function() {
+      location.assign(addr_nxt_month);
+  });
 
-    let arrow_previous_month = document.getElementById('arrow_previous_month');
+  let arrow_previous_month = document.getElementById('arrow_previous_month');
 
-    arrow_previous_month.addEventListener('click', function() {
-        location.assign(addr_prv_month);
-    });
+  arrow_previous_month.addEventListener('click', function() {
+      location.assign(addr_prv_month);
+  });
 
-    let arrow_next_day = document.getElementById('arrow_next_day');
+  let arrow_next_day = document.getElementById('arrow_next_day');
 
-    arrow_next_day.addEventListener('click', function() {
-        location.assign(addr_nxt_day);
-    });
+  arrow_next_day.addEventListener('click', function() {
+      location.assign(addr_nxt_day);
+  });
 
-    let arrow_previous_day = document.getElementById('arrow_previous_day');
+  let arrow_previous_day = document.getElementById('arrow_previous_day');
 
-    arrow_previous_day.addEventListener('click', function() {
-        location.assign(addr_prv_day);
-    });
+  arrow_previous_day.addEventListener('click', function() {
+      location.assign(addr_prv_day);
+  });
+
+
+  let add_row_btn = document.getElementById('add_row_btn');
+
+  let transactions_table = document.getElementById('transactions_table');
+  
+  let add_row_btn_row = document.getElementById('add_row_btn_row');
+
+  
+
+  add_row_btn.addEventListener('click', function() {
+    let new_row = htmlToElement(NEW_ROW);
+    transactions_table.appendChild(new_row);
+    transactions_table.appendChild(add_row_btn_row);
+  });
 }
 
-
+// https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro
+function htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
+}
 /*
 
 

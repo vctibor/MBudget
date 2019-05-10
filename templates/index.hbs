@@ -153,7 +153,7 @@ transactions - list of all transactions for given day
 
     <div class="expanses">
 
-        <table>
+        <table id="transactions_table">
 
             <tr>
                 <th>
@@ -171,22 +171,27 @@ transactions - list of all transactions for given day
             
             <tr class="expanses_row_odd">
                 <td>
-                    {{amount}}
                 </td>
                 <td>
-                    {{category}}
                 </td>
                 <td>
-                    {{description}}
                 </td>
             </tr>
 
             {{/each}}
+
+
+            <tr id="add_row_btn_row">
+                <td colspan="3">
+                    <button id="add_row_btn">
+                    +
+                    </button> 
+                </td>
+            </tr>
+
         </table>
 
-        <button id="add_row_btn">
-            +
-        </button> 
+
 
     </div>
 

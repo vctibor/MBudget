@@ -120,8 +120,9 @@ h3 {
 
 .expanses table {
     margin: auto;
-    padding: 10vw;
+    /*padding: 10vw;*/
     border-collapse: collapse;
+    width: 80vw;
 }
 
 .expanses th {
@@ -140,6 +141,7 @@ h3 {
     border-width: 1px;
     border-color: #777;
     border-collapse: collapse;
+   /* min-width: 300px; */
 }
 
 .expanses input {
@@ -169,16 +171,28 @@ h3 {
 }
 
 #add_row_btn {
+    /*
     width: 80%;
     height: 40px;
     margin-top: 10px;
-    
     border-radius: 8px;
     border-style: outset;
+    font-weight: 900;
+    font-size: 1.5em;
+    color: white;
+    background-color: #b7bdc9;
+    */
+
+    width: 100%;
+    height: 100%;
 
     font-weight: 900;
     font-size: 1.5em;
     color: white;
+    background-color: #aaa;
 
-    background-color: #b7bdc9;
+    border-style: none;
+
+    text-shadow: 2px 2px 2px #555;
+
 }
