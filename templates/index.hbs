@@ -35,6 +35,15 @@ current_day - current day in format "28. Března"
 current_day_name - week day name of current day
 
 transactions - list of all transactions for given day
+    id - unique ID of transaction (used for updating)
+    date - date of transaction
+    category - category of transaction
+    amount - monetary amount of transaction
+    description - description of transaction
+
+categories - list of all transaction categories in system
+    id - unqiue ID of category
+    name - name of category
 
 -->
 
@@ -47,13 +56,6 @@ transactions - list of all transactions for given day
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
 </head>
 <body>
-
-    <!--
-    <input id="year" type="hidden" value="{{year}}"/>
-    <input id="month" type="hidden" value="{{month}}"/>
-    <input id="day" type="hidden" value="{{day}}"/>
-    <input id="last_day" type="hidden" value="{{last_day}}"/>
-    -->
 
     <input id="addr_nxt_month" type="hidden" value="{{addr_nxt_month}}"/>
     <input id="addr_prv_month" type="hidden" value="{{addr_prv_month}}"/>
@@ -92,19 +94,27 @@ transactions - list of all transactions for given day
         <table class="info_table">
             <tr>
                 <td class="label">Reálná disponibilní částka per day:</td>
-                <td class="monetary {{info.real_day_disposable_color}}">{{info.real_day_disposable}}</td>
+                <td class="monetary {{info.real_day_disposable_color}}">
+                    {{info.real_day_disposable}}
+                </td>
             </tr>
             <tr>
                 <td class="label">Průměrná útrata per day:</td>
-                <td class="monetary {{info.avg_daily_expenses_color}}">{{info.avg_daily_expenses}}</td>
+                <td class="monetary {{info.avg_daily_expenses_color}}">
+                    {{info.avg_daily_expenses}}
+                </td>
             </tr>
             <tr>
                 <td class="label">Saldo:</td>
-                <td class="monetary {{info.saldo_color}}">{{info.saldo}}</td>
+                <td class="monetary {{info.saldo_color}}">
+                    {{info.saldo}}
+                </td>
             </tr>
             <tr>
                 <td class="label">Potenciální zůstatek:</td>
-                <td class="monetary {{info.potential_remaining_color}}">{{info.potential_remaining}}</td>
+                <td class="monetary {{info.potential_remaining_color}}">
+                    {{info.potential_remaining}}
+                </td>
             </tr>
         </table>
 
@@ -171,10 +181,17 @@ transactions - list of all transactions for given day
             
             <tr class="expanses_row_odd">
                 <td>
+                    <input type="number" value="{{amount}}" />
                 </td>
                 <td>
+                    <select>
+                        {{#each ../categories}}
+                            <option value="volvo">{{name}}</option>
+                        {{/each}}
+                    </select> 
                 </td>
                 <td>
+                    <input type="text" value="{{description}}" />
                 </td>
             </tr>
 
@@ -190,10 +207,6 @@ transactions - list of all transactions for given day
             </tr>
 
         </table>
-
-
-
     </div>
-
 </body>
 </html> 

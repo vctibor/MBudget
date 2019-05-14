@@ -30,10 +30,10 @@ struct Month {
     weeks: Vec<Day>
 }
 
-#[derive(Debug)]
-struct Category {
-    id: i32,
-    name: String
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Category {
+    pub id: i32,
+    pub name: String
 }
 
 #[derive(Serialize, Deserialize)]
@@ -80,15 +80,6 @@ pub struct IndexModel {
     /// Displayed year.
     pub year: i32,
 
-    // /// Displayed month.
-    // pub month: u32,
-
-    // /// Displayed day.
-    // pub day: u32,
-
-    // /// Last day of displayed month.
-    //pub last_day: u32,
-
     /// address of next month
     pub addr_nxt_month: String,
     
@@ -107,12 +98,15 @@ pub struct IndexModel {
     /// List of summarizations of transactions for each day.
     pub days: Vec<Day>,
 
-    /// Current day in format *d*. *M*.
+    /// Current day in format "dd. MM."
     pub current_day: String,
     
     /// Name of current day in week.
     pub current_day_name: String,
 
     /// List of transactions for displayed day.
-    pub transactions: Vec<Transaction>
+    pub transactions: Vec<Transaction>,
+
+    /// List of all transaction categories defined in system. 
+    pub categories: Vec<Category>
 }

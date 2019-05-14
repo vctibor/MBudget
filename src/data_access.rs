@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 use postgres::Connection;
-use model::Transaction;
+//use model::Transaction;
 use model::*;
 
 const SCALE: f64 = 1_000_000.0;
@@ -115,4 +115,38 @@ pub fn get_month_spent(conn: &Connection, year: i32, month: u32) -> f64 {
 
         None => { 0.0 }
     }
-} 
+}
+
+/// Obtain list of all categories.
+/// Returns empty list in case of failure (perhaps better return Option).
+pub fn get_categories(conn: &Connection) -> Vec<Category> {
+
+    let query = "select id, name from categories";
+
+    let query_result = &conn.query(&query, &[]); //.expect("Query failed.");
+
+    match query_result {
+        Ok(rows) => {
+            let mut vec = Vec::new();
+
+            for row in rows {
+
+                let cat = Category {
+                    id: row.get(0),
+                    name: row.get(1)
+                };
+
+                vec.push(cat);
+            }
+
+            let vec = vec;
+
+            vec
+        },
+
+        Err(e) => {
+            println!("Error querying categories: {:?}", e);
+            Vec::new()
+        }
+    }
+}

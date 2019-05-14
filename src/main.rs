@@ -1,6 +1,6 @@
 extern crate postgres;
 extern crate chrono;
-extern crate once_cell;
+extern crate once_cell;  // TODO: try to replace OnceCell with lazy_static
 extern crate handlebars;
 #[macro_use] extern crate serde;
 #[macro_use] extern crate rouille;
@@ -19,10 +19,20 @@ use once_cell::sync::OnceCell;
 use handlebars::Handlebars;
 use rouille::Response;
 use serde_json::Value;
+
 use data_access::*;
 use date_utils::*;
 use model::*;
 use calculations::*;
+
+/*
+TODO:
+DONE, KINDA - query DB for list of categories (new func in data_access)
+- change day transactions to be inputs (text input, select, text input)
+- populate select options with categories
+- add unique ID to each row of day transactions
+- add writing handler for enter key
+*/
 
 /// String used to register template in Handlebars templating engine.
 const TEMPLATE_NAME: &str = "index_template";
@@ -36,6 +46,8 @@ const CONNECTION_STR: &str = "postgres://malky:malky@192.168.196.97:5432/mbudget
 const DAILY_ALLOWANCE: f64 = 300.0;
 
 static HBS: OnceCell<Handlebars> = OnceCell::INIT;
+
+//static CATEGORIES: OnceCell<Vec<Category>> = OnceCell::INIT;
 
 fn index_handler() -> Response {
     index_month_handler(now().year(), now().month(), now().day())
@@ -125,12 +137,18 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
 
     let info = get_calculations(DAILY_ALLOWANCE, amount_spent, calculation_date);
 
+    /*
+    let cats: Vec<Category> = CATEGORIES.get()
+        .expect("Failed to read OnceCell containing categories.");
+    */
+
+    // TODO: don't call on every request
+    let cats = get_categories(&conn);
+
+
     let model = IndexModel {
         month_name: month_name.clone(),
         year: year,
-        //month: month,
-        //day: day,
-        //last_day: last_day(year, month),
         addr_nxt_month: addr_nxt_month,
         addr_prv_month: addr_prv_month,
         addr_nxt_day: addr_nxt_day,
@@ -139,28 +157,27 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         days: model_days,
         current_day: format!("{}. {}", day, month_name),
         current_day_name: day_name,
-        transactions: day_transactions
+        transactions: day_transactions,
+        categories: cats
     };
 
     let json_value: Value = json!(model);
 
-    let handlebars = HBS.get().unwrap();
+    let handlebars = HBS.get()
+        .expect("Failed to read OnceCell containing handlebars templates.");
     
-    let res = handlebars.render(TEMPLATE_NAME, &json_value).unwrap();
+    let res = handlebars.render(TEMPLATE_NAME, &json_value)
+        .expect("Failed to render Index template.");
     
     rouille::Response::html(res)
 }
 
 fn main() {
 
-
-    
-    //let address = ("192.168.1.2").to_owned();
-
-    //let port = ("9000").to_owned();
-
+    // TODO: Configuration
     let wwwroot_location = ("./static").to_owned();
 
+    // TODO: Configuration
     let templates_location = ("./templates").to_owned();
 
     let handlebars = {
@@ -176,13 +193,22 @@ fn main() {
     };
 
     HBS.set(handlebars)
-        .expect("Couldn't set Handlebars registry to OnceCell, it was already used. Aborting.");
+        .expect("Couldn't set Handlebars registry to OnceCell. Aborting.");
+
+    /*
+    let categories: Vec<Category> = {
+        let conn = Connection::connect(CONNECTION_STR, TlsMode::None)
+            .expect("Failed to connect to database.");
+
+        get_categories(&conn)
+    };
+
+    CATEGORIES.set(categories)
+        .expect("Couldn't set categories vector to OnceCell. Aborting.");
+    */
 
 
-    // Start server
-
-    //let addr = address + ":" + &port.to_string();
-
+    // TODO: Configuration
     let addr = "0.0.0.0:9000";
 
     println!("Started server on {}", addr);
