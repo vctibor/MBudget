@@ -28,8 +28,8 @@ use calculations::*;
 /*
 TODO:
 DONE, KINDA - query DB for list of categories (new func in data_access)
-- change day transactions to be inputs (text input, select, text input)
-- populate select options with categories
+DONE, NEEDS CSS - change day transactions to be inputs (text input, select, text input)
+DONE, NEEDS SELECTED - populate select options with categories
 - add unique ID to each row of day transactions
 - add writing handler for enter key
 */
@@ -143,10 +143,49 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
     */
 
     // TODO: don't call on every request
-    let cats = get_categories(&conn);
+    let categories = get_categories(&conn);
 
+    // Constructs Transactions viewmodel. Probably can be done in more idiomatic and shorter way.
+    let transactions_view: Vec<TransactionVM> = {
 
-    let model = IndexModel {
+        let count = day_transactions.len();
+
+        let mut transactions_view = Vec::with_capacity(count);
+
+        for i in 0..count {
+
+            let t = &day_transactions[i];
+            
+            let cats = {
+                let cat_count = categories.len();
+                let mut cats = Vec::with_capacity(cat_count);
+                for j in 0..cat_count {
+
+                    let selected_cat =
+                        t.category.is_some() && categories[j].id == t.category.unwrap();
+
+                    cats.push(CategoryVM {
+                        id: categories[j].id,
+                        name: categories[j].name.clone(),
+                        selected: selected_cat
+                    });
+                }
+                cats
+            };
+
+            transactions_view.push(TransactionVM {
+                id: t.id,
+                date: t.date,
+                categories: cats,    
+                amount: t.amount,
+                description: t.description.clone()
+            });
+        }
+
+        transactions_view
+    };
+
+    let model = IndexVM {
         month_name: month_name.clone(),
         year: year,
         addr_nxt_month: addr_nxt_month,
@@ -157,8 +196,7 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         days: model_days,
         current_day: format!("{}. {}", day, month_name),
         current_day_name: day_name,
-        transactions: day_transactions,
-        categories: cats
+        transactions: transactions_view
     };
 
     let json_value: Value = json!(model);
@@ -188,6 +226,8 @@ fn main() {
 
         handlebars.register_template_file(TEMPLATE_NAME, index)
             .expect("Failed to register template to Handlebars registry. Aborting.");
+
+        handlebars.set_strict_mode(true);
 
         handlebars
     };

@@ -134,7 +134,7 @@ fn saldo(
 pub fn get_calculations(
     daily_disposable: f64,
     amount_spent: f64,
-    date: NaiveDate) -> InfoCalculation
+    date: NaiveDate) -> InfoCalculationVM
 {
     let last_day = last_day(date.year(), date.month());
 
@@ -154,7 +154,7 @@ pub fn get_calculations(
     let (potential_remaining, potential_remaining_color) = potential_remaining(
         average_daily_spent, amount_remaining, date);
 
-    InfoCalculation {
+    InfoCalculationVM {
         total_disposable: format!("{:.2}", total_disposable),
         day_disposable: format!("{:.2}", daily_disposable),
         expenses_total: format!("{:.2}", amount_spent),

@@ -7,7 +7,10 @@ use chrono::NaiveDate;
 pub struct Transaction {
     pub id: i32,
     pub date: NaiveDate,
+
+    /// **TODO** : Option<Category>
     pub category: Option<i32>,
+    
     pub amount: f64,
     pub description: Option<String>
 }
@@ -49,8 +52,9 @@ pub struct Day {
     pub amount: f64
 }
 
+/// View model containing all summarization calculations.
 #[derive(Serialize, Deserialize)]
-pub struct InfoCalculation {
+pub struct InfoCalculationVM {
 
     pub total_disposable: String,
     pub day_disposable: String,
@@ -68,11 +72,29 @@ pub struct InfoCalculation {
     pub potential_remaining_color: Color
 }
 
+/// View model of category.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CategoryVM {
+    pub id: i32,
+    pub name: String,
+    pub selected: bool
+}
+
+/// View model of transaction.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TransactionVM {
+    pub id: i32,
+    pub date: NaiveDate,
+    pub categories: Vec<CategoryVM>,    
+    pub amount: f64,
+    pub description: Option<String>
+}
+
 /// This is the main view model. It represents data for given day and month.
 ///  It gets serialized into JSON and passed to Handlebars 'index' template,
 ///  which creates HTML page based on data in this model and template.
 #[derive(Serialize, Deserialize)]
-pub struct IndexModel {
+pub struct IndexVM {
 
     /// Name of the displayed month.
     pub month_name: String,
@@ -93,7 +115,7 @@ pub struct IndexModel {
     pub addr_prv_day: String,
     
     /// Summarization calculations.
-    pub info: InfoCalculation,
+    pub info: InfoCalculationVM,
 
     /// List of summarizations of transactions for each day.
     pub days: Vec<Day>,
@@ -105,8 +127,8 @@ pub struct IndexModel {
     pub current_day_name: String,
 
     /// List of transactions for displayed day.
-    pub transactions: Vec<Transaction>,
+    pub transactions: Vec<TransactionVM>,
 
-    /// List of all transaction categories defined in system. 
-    pub categories: Vec<Category>
+    // /// List of all transaction categories defined in system. 
+    // pub categories: Vec<Category>
 }

@@ -1,51 +1,48 @@
 <!DOCTYPE html>
 
-<!--
-
+{{!
 Variables:
-month_name - name of month
-year - name of year
+    month_name - name of month
+    year - name of year
 
-addr_nxt_month - address of next month
-addr_prv_month - address of previous month
-addr_nxt_day - address of next day
-addr_prv_day - address of previous day
+    addr_nxt_month - address of next month
+    addr_prv_month - address of previous month
+    addr_nxt_day - address of next day
+    addr_prv_day - address of previous day
 
-total_disposable - total disposable amount
-day_disposable - daily (original) disposable amount
-expenses_total - sum of all expenses for given month
-remaining_amount - amount remaining for month
+    total_disposable - total disposable amount
+    day_disposable - daily (original) disposable amount
+    expenses_total - sum of all expenses for given month
+    remaining_amount - amount remaining for month
 
-real_day_disposable - real daily disposable amount
-avg_daily_expenses - average daily expenses
-saldo - saldo
-potential_remaining - potential remaining amount
+    real_day_disposable - real daily disposable amount
+    avg_daily_expenses - average daily expenses
+    saldo - saldo
+    potential_remaining - potential remaining amount
 
-real_day_disposable_color - 'bad' or 'good'
-avg_daily_expenses_color - 'bad' or 'good'
-saldo_color - 'bad' or 'good'
-potential_remaining_color - 'bad' or 'good'
+    real_day_disposable_color - 'bad' or 'good'
+    avg_daily_expenses_color - 'bad' or 'good'
+    saldo_color - 'bad' or 'good'
+    potential_remaining_color - 'bad' or 'good'
 
-days - vector of days in month consisting of:
-    day - number of given day in month
-    color - 'bad' or 'good'
-    amount - sum of all transactions for given day
+    days - vector of days in month consisting of:
+        day - number of given day in month
+        color - 'bad' or 'good'
+        amount - sum of all transactions for given day
 
-current_day - current day in format "28. Března"
-current_day_name - week day name of current day
+    current_day - current day in format "28. Března"
+    current_day_name - week day name of current day
 
-transactions - list of all transactions for given day
-    id - unique ID of transaction (used for updating)
-    date - date of transaction
-    category - category of transaction
-    amount - monetary amount of transaction
-    description - description of transaction
-
-categories - list of all transaction categories in system
-    id - unqiue ID of category
-    name - name of category
-
--->
+    transactions - list of all transactions for given day
+        id - unique ID of transaction (used for updating)
+        date - date of transaction
+        categories - list of all categories defined in system
+            id - category id
+            name - category name
+            selected - bool flag indicating if selected
+        amount - monetary amount of transaction
+        description - description of transaction
+}}
 
 <html>
 <head>
@@ -179,19 +176,22 @@ categories - list of all transaction categories in system
 
             {{#each transactions}}
             
-            <tr class="expanses_row_odd">
+            <tr id={{id}}>
                 <td>
-                    <input type="number" value="{{amount}}" />
+                    <input type="number" value="{{amount}}" class="expanses_input"/>
                 </td>
                 <td>
-                    <select>
-                        {{#each ../categories}}
-                            <option value="volvo">{{name}}</option>
+                    <select class="expanses_input">
+                        <option class="no_cat">---</option> {{! NULL category }}
+                        {{#each categories}}                            
+                            <option value="{{id}}" {{#if selected}}selected="true"{{/if}}>
+                                {{name}}
+                            </option>
                         {{/each}}
                     </select> 
                 </td>
                 <td>
-                    <input type="text" value="{{description}}" />
+                    <input type="text" value="{{description}}" class="expanses_input"/>
                 </td>
             </tr>
 
