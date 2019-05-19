@@ -96,6 +96,10 @@ pub struct TransactionVM {
 #[derive(Serialize, Deserialize)]
 pub struct IndexVM {
 
+    pub day: u32,
+
+    pub month: u32,
+
     /// Name of the displayed month.
     pub month_name: String,
 
@@ -129,6 +133,6 @@ pub struct IndexVM {
     /// List of transactions for displayed day.
     pub transactions: Vec<TransactionVM>,
 
-    // /// List of all transaction categories defined in system. 
-    // pub categories: Vec<Category>
+    /// List of all transaction categories defined in system. 
+    pub categories: Vec<CategoryVM>
 }

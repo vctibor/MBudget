@@ -2,8 +2,10 @@
 
 use std::collections::HashMap;
 use postgres::Connection;
-//use model::Transaction;
 use model::*;
+
+// TODO: use SERIAL pgsql type on id columns
+// upsert modified records
 
 const SCALE: f64 = 1_000_000.0;
 

@@ -2,6 +2,8 @@
 
 {{!
 Variables:
+    day - day in month
+    month - month in year
     month_name - name of month
     year - name of year
 
@@ -42,6 +44,10 @@ Variables:
             selected - bool flag indicating if selected
         amount - monetary amount of transaction
         description - description of transaction
+
+    categories - list of all categories defined in system
+        id - category id
+        name - category name
 }}
 
 <html>
@@ -53,6 +59,10 @@ Variables:
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
 </head>
 <body>
+
+    <input id="day" type="hidden" value="{{day}}"/>
+    <input id="month" type="hidden" value="{{month}}"/>
+    <input id="year" type="hidden" value="{{year}}"/>
 
     <input id="addr_nxt_month" type="hidden" value="{{addr_nxt_month}}"/>
     <input id="addr_prv_month" type="hidden" value="{{addr_prv_month}}"/>
@@ -176,27 +186,26 @@ Variables:
 
             {{#each transactions}}
             
-            <tr id={{id}}>
+            <tr class="input_row" id="{{id}}">
                 <td>
-                    <input type="number" value="{{amount}}" class="expanses_input"/>
+                    <input name="amount" type="number" value="{{amount}}" class="expanses_input"/>
                 </td>
                 <td>
-                    <select class="expanses_input">
-                        <option class="no_cat">---</option> {{! NULL category }}
+                    <select name="category" class="expanses_input">
+                        <option value="" class="no_cat">---</option>
                         {{#each categories}}                            
-                            <option value="{{id}}" {{#if selected}}selected="true"{{/if}}>
-                                {{name}}
-                            </option>
+                        <option value="{{id}}" {{#if selected}}selected="true"{{/if}}>
+                            {{name}}
+                        </option>
                         {{/each}}
                     </select> 
                 </td>
                 <td>
-                    <input type="text" value="{{description}}" class="expanses_input"/>
+                    <input name="description" type="text" value="{{description}}" class="expanses_input"/>
                 </td>
             </tr>
 
             {{/each}}
-
 
             <tr id="add_row_btn_row">
                 <td colspan="3">
@@ -208,5 +217,27 @@ Variables:
 
         </table>
     </div>
+
+    <template id="new_row_template" style="display: none;">
+        <tr class="input_row" id="">
+            <td>
+                <input name="amount" type="number" value="" class="expanses_input"/>
+            </td>
+            <td>
+                <select name="category" class="expanses_input">
+                    <option value="" class="no_cat" selected="true">---</option>
+                    {{#each categories}}                            
+                    <option value="{{id}}">
+                        {{name}}
+                    </option>
+                    {{/each}}
+                </select> 
+            </td>
+            <td>
+                <input name="description" type="text" value="" class="expanses_input"/>
+            </td>
+        </tr>
+    </template>
+
 </body>
 </html> 

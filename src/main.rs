@@ -19,6 +19,7 @@ use once_cell::sync::OnceCell;
 use handlebars::Handlebars;
 use rouille::Response;
 use serde_json::Value;
+use std::io::Read;
 
 use data_access::*;
 use date_utils::*;
@@ -142,7 +143,7 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         .expect("Failed to read OnceCell containing categories.");
     */
 
-    // TODO: don't call on every request
+    // TODO: don't call on every request, create CategoriesVM vector only once, clone and modify Selected field for each tranaction
     let categories = get_categories(&conn);
 
     // Constructs Transactions viewmodel. Probably can be done in more idiomatic and shorter way.
@@ -185,7 +186,23 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         transactions_view
     };
 
+    let categories_view = {
+        let mut c = Vec::with_capacity(categories.len());
+
+        for i in 0..categories.len() {
+            c.push(CategoryVM {
+                id: categories[i].id,
+                name: categories[i].name.clone(),
+                selected: false
+            });
+        }
+
+        c
+    };
+
     let model = IndexVM {
+        day: day,
+        month: month,
         month_name: month_name.clone(),
         year: year,
         addr_nxt_month: addr_nxt_month,
@@ -196,7 +213,8 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         days: model_days,
         current_day: format!("{}. {}", day, month_name),
         current_day_name: day_name,
-        transactions: transactions_view
+        transactions: transactions_view,
+        categories: categories_view
     };
 
     let json_value: Value = json!(model);
@@ -208,6 +226,14 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         .expect("Failed to render Index template.");
     
     rouille::Response::html(res)
+}
+
+fn write_event_handler(year: u32, month: u32, day: u32, request: &rouille::Request) -> () {
+    
+    let mut event: String = "".to_string();
+    request.data().unwrap().read_to_string(&mut event).unwrap();
+
+    println!("{:?}", event);
 }
 
 fn main() {
@@ -263,27 +289,18 @@ fn main() {
 
         router!(request,
 
-            
             (GET) (/) => { index_handler() },
-
             
             (GET) (/{year: i32}/{month: u32}/{day: u32}) => {
                 index_month_handler(year, month, day)
-            },
-
-            /*
-            (GET) (/read-month/{year: u32}/{month: u32}) => {
-                read_month_handler(year, month)
             },
 
             (POST) (/write-event/{year: u32}/{month: u32}/{day: u32}) => {
                 write_event_handler(year, month, day, &request);                
                 rouille::Response::empty_204()
             },
-            */
 
-            _ => rouille::Response::empty_404()
-            
+            _ => rouille::Response::empty_404()    
         )
     });
 
