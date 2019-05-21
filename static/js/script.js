@@ -89,13 +89,13 @@ function post() {
 
   Array.from(rows).forEach(function(row) {
 
-    let id = row.id;
+    let id = parseInt(row.id);
 
-    let amount = row.querySelector('input[name=amount]').value;
+    let amount = parseFloat(row.querySelector('input[name=amount]').value);
 
     let description = row.querySelector('input[name=description]').value;
 
-    let category = row.querySelector('select[name=category]').value;
+    let category = parseInt(row.querySelector('select[name=category]').value);
 
     let record = {
       id: id,

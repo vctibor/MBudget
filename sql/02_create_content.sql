@@ -1,11 +1,11 @@
 CREATE TABLE Categories (
-    ID INTEGER NOT NULL,
+    ID SERIAL,
     Name TEXT NOT NULL,
     PRIMARY KEY(ID)
 );
 
 CREATE TABLE Transactions (
-    ID INTEGER NOT NULL,
+    ID SERIAL,
     Date DATE NOT NULL,
     Category INTEGER REFERENCES Categories(ID), 
     Amount BIGINT NOT NULL,         -- milionths of Czech koruna
@@ -26,3 +26,14 @@ ORDER BY Year, Month, Day;
 
 GRANT ALL PRIVILEGES
 ON ALL TABLES IN SCHEMA public TO malky;
+
+INSERT INTO Categories(name) VALUES
+    ('Potraviny & domácnost'),
+    ('Oblečení'),
+    ('Alkohol'),
+    ('Čajovny & kavárny'),
+    ('Restaurace'),
+    ('Cestování & PHM'),
+    ('Elektronika'),
+    ('Airsoft'),
+    ('Pokuty')

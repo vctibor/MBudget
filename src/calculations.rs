@@ -112,6 +112,8 @@ fn saldo(
     amount_remaining: f64,
     date: NaiveDate) -> (f64, Color)
 {
+    // BLBE
+
     let day = date.day() as f64;
 
     let last_day = last_day(date.year(), date.month());

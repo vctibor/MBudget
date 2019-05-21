@@ -17,7 +17,7 @@ use chrono::NaiveDate;
 use chrono::prelude::*;
 use once_cell::sync::OnceCell;
 use handlebars::Handlebars;
-use rouille::Response;
+use rouille::{Response, Request};
 use serde_json::Value;
 use std::io::Read;
 
@@ -40,7 +40,7 @@ const TEMPLATE_NAME: &str = "index_template";
 
 /// Database connection string.
 /// **TODO: Move into args/configuration.**
-const CONNECTION_STR: &str = "postgres://malky:malky@192.168.196.97:5432/mbudget";
+const CONNECTION_STR: &str = "postgres://malky:malky@192.168.1.3:5432/mbudget";
 
 /// Amount of money allowed to spend each day.
 /// **TODO: Move to DB and read on each HTTP request.**
@@ -56,7 +56,8 @@ fn index_handler() -> Response {
 
 fn index_month_handler(year: i32, month: u32, day: u32) -> Response {  
 
-    let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None).unwrap();   
+    let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None)
+        .expect("Failed to connect to database.");   
     
     let expenses: HashMap<u32, DailyExpense> = read_month_transactions(&conn, year, month);
 
@@ -175,7 +176,7 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
             };
 
             transactions_view.push(TransactionVM {
-                id: t.id,
+                id: t.id.unwrap(),
                 date: t.date,
                 categories: cats,    
                 amount: t.amount,
@@ -228,12 +229,50 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
     rouille::Response::html(res)
 }
 
-fn write_event_handler(year: u32, month: u32, day: u32, request: &rouille::Request) -> () {
-    
-    let mut event: String = "".to_string();
-    request.data().unwrap().read_to_string(&mut event).unwrap();
+fn write_event_handler(year: i32, month: u32, day: u32, request: &Request) {
 
-    println!("{:?}", event);
+    let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None)
+        .expect("Failed to connect to database.");   
+    
+    #[derive(Debug, Serialize, Deserialize)]
+    struct InputTransaction {
+        id: Option<i32>,
+        amount: Option<f64>,
+        category: Option<i32>,
+        description: String
+    };
+
+    let mut data = "".to_string();
+    request.data().unwrap().read_to_string(&mut data).unwrap();
+
+    let records: Vec<InputTransaction> =
+        serde_json::from_str(&data).unwrap();
+    
+    let mut updates: Vec<Transaction> =
+        Vec::with_capacity(records.len());
+
+    let date = NaiveDate::from_ymd(year, month, day);
+
+    for record in records {
+
+        // If amount is none, don't write into DB.
+        // TODO: if ID is Some, delete tran
+        if record.amount.is_none() {
+            continue;
+        }
+
+        let transaction = Transaction {
+            id: record.id,
+            date: date.clone(),
+            category: record.category,            
+            amount: record.amount.unwrap(),
+            description: Some(record.description)
+        };
+        
+        updates.push(transaction);
+    }
+
+    upsert_transactions(&conn, updates);
 }
 
 fn main() {
@@ -295,7 +334,7 @@ fn main() {
                 index_month_handler(year, month, day)
             },
 
-            (POST) (/write-event/{year: u32}/{month: u32}/{day: u32}) => {
+            (POST) (/write-event/{year: i32}/{month: u32}/{day: u32}) => {
                 write_event_handler(year, month, day, &request);                
                 rouille::Response::empty_204()
             },

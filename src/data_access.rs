@@ -3,6 +3,8 @@
 use std::collections::HashMap;
 use postgres::Connection;
 use model::*;
+//use chrono::NaiveDate;
+use chrono::prelude::*;
 
 // TODO: use SERIAL pgsql type on id columns
 // upsert modified records
@@ -149,6 +151,69 @@ pub fn get_categories(conn: &Connection) -> Vec<Category> {
         Err(e) => {
             println!("Error querying categories: {:?}", e);
             Vec::new()
+        }
+    }
+}
+
+pub fn upsert_transactions(conn: &Connection, transactions: Vec<Transaction>)
+{
+    for transaction in transactions {
+
+        let amount = (transaction.amount * SCALE) as i64;
+
+        let descr = match transaction.description.clone() {
+            Some(s) => s,
+            None => "".to_string()
+        };
+
+        // insert
+        if transaction.id.is_none() {
+
+            let mut query = String::from("insert into transactions(date, amount, description");
+
+            if transaction.category.is_some() {
+                query.push_str(", category");
+            }
+
+            query.push_str(") values ");
+
+            let val = format!("('{y}-{m}-{d}', {amount}, '{description}'",
+                y = transaction.date.year(),
+                m = transaction.date.month(),
+                d = transaction.date.day(),
+                amount = amount,
+                description = descr);
+
+            query.push_str(&val);
+
+            if let Some(c) = transaction.category {
+                query.push_str(&format!(", {}", c));
+            }
+
+            query.push_str(")");
+
+            println!("{}", &query);
+
+            conn.execute(&query, &[])
+                .expect("Failed to execute insert transactions query.");
+        }
+
+        // update
+        if transaction.id.is_some() {
+            let mut query = String::from("update transactions set ");
+
+            query.push_str(&format!("amount = {}, description = '{}'", amount, descr));
+
+            if let Some(c) = transaction.category {
+                query.push_str(&format!(", category = {}", c));
+            }
+
+            query.push_str(&format!(" where id = {}", transaction.id.unwrap()));
+
+            println!("{}", &query);
+
+            conn.execute(&query, &[])
+                .expect("Failed to execute update transactions query.");
         }
     }
 }

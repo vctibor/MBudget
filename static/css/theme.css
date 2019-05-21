@@ -4,6 +4,13 @@ body {
     text-shadow: 2px 2px 2px #999;
 }
 
+.reset-a, .reset-a:hover, .reset-a:visited, .reset-a:focus, .reset-a:active  {
+    text-decoration: none;
+    color: inherit;
+    outline: 0;
+    cursor: pointer;
+}
+
 .heading {
     text-align: center;
     padding-bottom: 20px;

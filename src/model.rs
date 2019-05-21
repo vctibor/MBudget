@@ -5,7 +5,7 @@ use chrono::NaiveDate;
 /// Represents single transaction.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Transaction {
-    pub id: i32,
+    pub id: Option<i32>,
     pub date: NaiveDate,
 
     /// **TODO** : Option<Category>
