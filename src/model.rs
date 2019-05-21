@@ -136,3 +136,22 @@ pub struct IndexVM {
     /// List of all transaction categories defined in system. 
     pub categories: Vec<CategoryVM>
 }
+
+/// configuration
+#[derive(Debug, Deserialize)]
+pub struct Config {
+    /// IP address
+    pub address: String,
+
+    /// port to listen on
+    pub port: u64,
+
+    /// database connection string
+    pub conn_string: String,
+
+    /// templates (handlebars) location
+    pub templates: String,
+
+    /// Static files location
+    pub wwwroot: String
+}

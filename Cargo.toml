@@ -14,7 +14,7 @@ postgres = { version = "0.15", features = ["with-chrono"] }
 chrono = { version = "0.4", features = ["serde"] }
 
 # Commandline argument parsing
-# clap = "2.32.0"
+clap = "2.32.0"
 
 # Global objects
 once_cell = "0.1.8"
@@ -35,7 +35,7 @@ rouille = "2.2.0"
 #reqwest = "0.9.13"
 
 # TOML parsing
-#toml = "0.4.9"
+toml = "0.4.9"
 
 
 [[bin]]

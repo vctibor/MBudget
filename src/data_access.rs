@@ -3,11 +3,7 @@
 use std::collections::HashMap;
 use postgres::Connection;
 use model::*;
-//use chrono::NaiveDate;
 use chrono::prelude::*;
-
-// TODO: use SERIAL pgsql type on id columns
-// upsert modified records
 
 const SCALE: f64 = 1_000_000.0;
 
@@ -127,7 +123,7 @@ pub fn get_categories(conn: &Connection) -> Vec<Category> {
 
     let query = "select id, name from categories";
 
-    let query_result = &conn.query(&query, &[]); //.expect("Query failed.");
+    let query_result = &conn.query(&query, &[]);
 
     match query_result {
         Ok(rows) => {
@@ -166,7 +162,6 @@ pub fn upsert_transactions(conn: &Connection, transactions: Vec<Transaction>)
             None => "".to_string()
         };
 
-        // insert
         if transaction.id.is_none() {
 
             let mut query = String::from("insert into transactions(date, amount, description");
@@ -192,13 +187,10 @@ pub fn upsert_transactions(conn: &Connection, transactions: Vec<Transaction>)
 
             query.push_str(")");
 
-            println!("{}", &query);
-
             conn.execute(&query, &[])
                 .expect("Failed to execute insert transactions query.");
         }
 
-        // update
         if transaction.id.is_some() {
             let mut query = String::from("update transactions set ");
 
@@ -209,8 +201,6 @@ pub fn upsert_transactions(conn: &Connection, transactions: Vec<Transaction>)
             }
 
             query.push_str(&format!(" where id = {}", transaction.id.unwrap()));
-
-            println!("{}", &query);
 
             conn.execute(&query, &[])
                 .expect("Failed to execute update transactions query.");

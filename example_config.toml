@@ -1,0 +1,14 @@
+# IP address
+address = "0.0.0.0"
+
+# port to listen on
+port = 8000
+
+# templates (handlebars) location
+templates = "./templates"
+
+# static files location
+wwwroot = "./static"
+
+# database connection string
+conn_string = "postgres://malky:malky@192.168.1.3:5432/mbudget"

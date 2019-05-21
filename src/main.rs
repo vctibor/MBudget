@@ -1,7 +1,9 @@
 extern crate postgres;
 extern crate chrono;
-extern crate once_cell;  // TODO: try to replace OnceCell with lazy_static
+extern crate once_cell;
 extern crate handlebars;
+extern crate toml;
+extern crate clap;
 #[macro_use] extern crate serde;
 #[macro_use] extern crate rouille;
 #[macro_use] extern crate serde_json;
@@ -20,27 +22,16 @@ use handlebars::Handlebars;
 use rouille::{Response, Request};
 use serde_json::Value;
 use std::io::Read;
+use clap::{App, Arg};
+use std::fs::File;
 
 use data_access::*;
 use date_utils::*;
 use model::*;
 use calculations::*;
 
-/*
-TODO:
-DONE, KINDA - query DB for list of categories (new func in data_access)
-DONE, NEEDS CSS - change day transactions to be inputs (text input, select, text input)
-DONE, NEEDS SELECTED - populate select options with categories
-- add unique ID to each row of day transactions
-- add writing handler for enter key
-*/
-
 /// String used to register template in Handlebars templating engine.
 const TEMPLATE_NAME: &str = "index_template";
-
-/// Database connection string.
-/// **TODO: Move into args/configuration.**
-const CONNECTION_STR: &str = "postgres://malky:malky@192.168.1.3:5432/mbudget";
 
 /// Amount of money allowed to spend each day.
 /// **TODO: Move to DB and read on each HTTP request.**
@@ -48,15 +39,15 @@ const DAILY_ALLOWANCE: f64 = 300.0;
 
 static HBS: OnceCell<Handlebars> = OnceCell::INIT;
 
-//static CATEGORIES: OnceCell<Vec<Category>> = OnceCell::INIT;
+static CATEGORIES: OnceCell<Vec<Category>> = OnceCell::INIT;
 
-fn index_handler() -> Response {
-    index_month_handler(now().year(), now().month(), now().day())
+fn index_handler(conn_str: &str) -> Response {
+    index_month_handler(now().year(), now().month(), now().day(), conn_str)
 }
 
-fn index_month_handler(year: i32, month: u32, day: u32) -> Response {  
+fn index_month_handler(year: i32, month: u32, day: u32, conn_str: &str) -> Response {  
 
-    let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None)
+    let conn: Connection = Connection::connect(conn_str, TlsMode::None)
         .expect("Failed to connect to database.");   
     
     let expenses: HashMap<u32, DailyExpense> = read_month_transactions(&conn, year, month);
@@ -91,8 +82,6 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
             amount: amount
         });
     }
-
-    
     
     let date = NaiveDate::from_ymd(year, month, day);
 
@@ -100,11 +89,9 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
 
     let day_name = get_weekday_name(date.weekday());
 
-
     let amount_spent = get_month_spent(&conn, year, month);
 
     let day_transactions = read_day_transactions(&conn, year, month, day);
-
 
     // If we are handling current month, we perform calculations for current date,
     //  otherwise calculate values for last day of given month.
@@ -114,7 +101,6 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         let last_day = days.last().unwrap().day();
         NaiveDate::from_ymd(year, month, last_day)
     };
-
     
     let addr_nxt_month = {
         let nxt_month = next_month(date);
@@ -136,17 +122,11 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
         format!("/{}/{}/{}", prv_day.year(), prv_day.month(), prv_day.day())
     };
 
-
     let info = get_calculations(DAILY_ALLOWANCE, amount_spent, calculation_date);
-
-    /*
-    let cats: Vec<Category> = CATEGORIES.get()
+    
+    let categories = CATEGORIES.get()
         .expect("Failed to read OnceCell containing categories.");
-    */
-
-    // TODO: don't call on every request, create CategoriesVM vector only once, clone and modify Selected field for each tranaction
-    let categories = get_categories(&conn);
-
+    
     // Constructs Transactions viewmodel. Probably can be done in more idiomatic and shorter way.
     let transactions_view: Vec<TransactionVM> = {
 
@@ -229,9 +209,9 @@ fn index_month_handler(year: i32, month: u32, day: u32) -> Response {
     rouille::Response::html(res)
 }
 
-fn write_event_handler(year: i32, month: u32, day: u32, request: &Request) {
+fn write_event_handler(year: i32, month: u32, day: u32, request: &Request, conn_str: &str) {
 
-    let conn: Connection = Connection::connect(CONNECTION_STR, TlsMode::None)
+    let conn: Connection = Connection::connect(conn_str, TlsMode::None)
         .expect("Failed to connect to database.");   
     
     #[derive(Debug, Serialize, Deserialize)]
@@ -277,11 +257,33 @@ fn write_event_handler(year: i32, month: u32, day: u32, request: &Request) {
 
 fn main() {
 
-    // TODO: Configuration
-    let wwwroot_location = ("./static").to_owned();
+    let options = App::new("MBudget")
+        .arg(Arg::with_name("file")
+            .index(1)
+            .help("TOML config")
+            .required(true)
+            .takes_value(true))
+        .get_matches();
 
-    // TODO: Configuration
-    let templates_location = ("./templates").to_owned();
+    let filename = options.value_of("file")
+        .expect("Path to configuration file is required parameter. Aborting.");
+    
+    let mut file = File::open(filename)
+        .expect("Couldn't open configuration file. Aborting.");
+
+    let mut contents = String::new();        
+
+    file.read_to_string(&mut contents)
+        .expect("Couldn't read configuration file. Aborting.");
+
+    let config: Config = toml::from_str(&contents)
+        .expect("Couldn't parse configuration file. Make sure it is valid TOML. Aborting.");
+
+    let address = config.address.to_owned();
+    let port = config.port.to_owned();
+    let connection_string = config.conn_string.to_owned();
+    let templates_location = config.templates.to_owned();
+    let wwwroot_location = config.wwwroot.to_owned();
 
     let handlebars = {
 
@@ -300,9 +302,8 @@ fn main() {
     HBS.set(handlebars)
         .expect("Couldn't set Handlebars registry to OnceCell. Aborting.");
 
-    /*
     let categories: Vec<Category> = {
-        let conn = Connection::connect(CONNECTION_STR, TlsMode::None)
+        let conn = Connection::connect(connection_string.clone(), TlsMode::None)
             .expect("Failed to connect to database.");
 
         get_categories(&conn)
@@ -310,13 +311,9 @@ fn main() {
 
     CATEGORIES.set(categories)
         .expect("Couldn't set categories vector to OnceCell. Aborting.");
-    */
+    
 
-
-    // TODO: Configuration
-    let addr = "0.0.0.0:9000";
-
-    println!("Started server on {}", addr);
+    let addr = address + ":" + &port.to_string();
 
     rouille::start_server(addr, move |request| {
     
@@ -328,19 +325,18 @@ fn main() {
 
         router!(request,
 
-            (GET) (/) => { index_handler() },
+            (GET) (/) => { index_handler(&connection_string) },
             
             (GET) (/{year: i32}/{month: u32}/{day: u32}) => {
-                index_month_handler(year, month, day)
+                index_month_handler(year, month, day, &connection_string)
             },
 
             (POST) (/write-event/{year: i32}/{month: u32}/{day: u32}) => {
-                write_event_handler(year, month, day, &request);                
+                write_event_handler(year, month, day, &request, &connection_string);                
                 rouille::Response::empty_204()
             },
 
             _ => rouille::Response::empty_404()    
         )
     });
-
 }
