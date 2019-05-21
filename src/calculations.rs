@@ -104,16 +104,14 @@ fn potential_remaining(
 
 /// "Saldo" is difference between what should have been spent by this time,
 ///   and what was actually spend.
-/// It is calculated as difference between real_daily_disposable times day in month
+/// It is calculated as difference between daily_disposable times day in month
 ///   and total amount spent.
 fn saldo(
-    real_daily_disposable: f64,
+    daily_disposable: f64,
     amount_spent: f64,
     amount_remaining: f64,
     date: NaiveDate) -> (f64, Color)
 {
-    // BLBE
-
     let day = date.day() as f64;
 
     let last_day = last_day(date.year(), date.month());
@@ -121,7 +119,7 @@ fn saldo(
     let saldo = if last_day <= date.day() {
         amount_remaining
     } else {
-        (real_daily_disposable * day) - amount_spent
+        (daily_disposable * day) - amount_spent
     };
 
     let color = if saldo >= 0.0 {
@@ -151,7 +149,7 @@ pub fn get_calculations(
         amount_spent, daily_disposable, date);
 
     let (saldo, saldo_color) = saldo(
-        real_daily_disposable, amount_spent, amount_remaining, date);
+        daily_disposable, amount_spent, amount_remaining, date);
 
     let (potential_remaining, potential_remaining_color) = potential_remaining(
         average_daily_spent, amount_remaining, date);
