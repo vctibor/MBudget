@@ -225,6 +225,7 @@ fn write_event_handler(year: i32, month: u32, day: u32, request: &Request, conn_
     };
 
     let mut data = "".to_string();
+
     request.data().unwrap().read_to_string(&mut data).unwrap();
 
     let records: Vec<InputTransaction> =
@@ -239,7 +240,8 @@ fn write_event_handler(year: i32, month: u32, day: u32, request: &Request, conn_
 
         // If amount is none, don't write into DB.
         // TODO: if ID is Some, delete tran
-        if record.amount.is_none() {
+
+        if record.amount.is_none() && record.id.is_none() {
             continue;
         }
 
@@ -259,9 +261,12 @@ fn write_event_handler(year: i32, month: u32, day: u32, request: &Request, conn_
 
 fn analytics_handler(conn_str: &str) -> Response {
     
+    /*
     let conn: Connection = Connection::connect(conn_str, TlsMode::None)
         .expect("Failed to connect to database.");   
+    */
 
+    
     let model = ();
 
     let json_value: Value = json!(model);

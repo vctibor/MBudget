@@ -164,7 +164,8 @@ pub fn upsert_transactions(conn: &Connection, transactions: Vec<Transaction>)
 
         if transaction.id.is_none() {
 
-            let mut query = String::from("insert into transactions(date, amount, description");
+            let mut query = String::from(
+                "insert into transactions(date, amount, description");
 
             if transaction.category.is_some() {
                 query.push_str(", category");
@@ -188,7 +189,19 @@ pub fn upsert_transactions(conn: &Connection, transactions: Vec<Transaction>)
             query.push_str(")");
 
             conn.execute(&query, &[])
-                .expect("Failed to execute insert transactions query.");
+                .expect("Failed to execute insert into transactions table.");
+
+            continue;
+        }
+
+        if transaction.id.is_some() && transaction.amount == 0.0 {
+            let query = format!(
+                "delete from transactions where id = {}", transaction.id.unwrap());
+
+            conn.execute(&query, &[])
+                .expect("Failed to execute delete from transactions table.");
+
+            continue;
         }
 
         if transaction.id.is_some() {
@@ -203,7 +216,9 @@ pub fn upsert_transactions(conn: &Connection, transactions: Vec<Transaction>)
             query.push_str(&format!(" where id = {}", transaction.id.unwrap()));
 
             conn.execute(&query, &[])
-                .expect("Failed to execute update transactions query.");
+                .expect("Failed to execute update transactions table.");
+
+            continue;
         }
     }
 }

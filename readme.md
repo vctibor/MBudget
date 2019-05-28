@@ -8,8 +8,6 @@ For detailed description see *theory.md* or *theory-english.md* files.
 
 ## TODO
 
-- Delete record on receiving entry containing valid ID and empty or zero amount
-
 - Move summarization calculation into database (view or stored procedure or function)
 
 - Move original daily allowance into database in format [*amount*, *validSince*], when reading use either:
