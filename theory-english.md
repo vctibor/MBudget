@@ -54,7 +54,7 @@ For given day in month *cd* and remaining days in month *rd* we can calculate fo
 
 *average_daily_spent* as
 
-    average_daily_spent = total_disposable_amount / rd
+    average_daily_spent = total_spent / rd
 
 
 Analytics
@@ -71,24 +71,3 @@ Plotted values are:
 - Total spent for each granularity unit (each day for daily granularity, etc.).
 
 - Total spent per category in given period, ordered from highest to lowest.
-
-TODO
-----
-
-- Delete record on receiving entry containing valid ID and empty or zero amount
-
-- Move summarization calculation into database (view or stored procedure or function)
-
-- Move original daily allowance into database in format [*amount*, *validSince*], when reading use either:
-
-    - entry with lowest *validSince* if reading for date which is lower than lowest *validSince*
-
-    - entry with highest *validSince* if reading for date higher than highest *validSince*
-
-    - entry with lower *validSince* if reading for date which falls between two entries
-
-- Analytics
-
-- General error handling
-
-- Logging
