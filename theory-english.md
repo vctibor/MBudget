@@ -54,7 +54,7 @@ For given day in month *cd* and remaining days in month *rd* we can calculate fo
 
 *average_daily_spent* as
 
-    average_daily_spent = remaining_disposable / rd
+    average_daily_spent = total_disposable_amount / rd
 
 
 Analytics
@@ -62,7 +62,15 @@ Analytics
 
 Page on address */analytics* will contain plots for analysis of longer term spending habits.
 
-Implemented in [plotly](https://plot.ly/javascript/)
+Implemented in [plotly](https://plot.ly/javascript/), server will serve basic page containing inputs and divs for plotting graphs; javascript will call AJAX methods that serve JSON values for given inputs, and plot them.
+
+It will allow to set lower and upper bound for period and granularity (daily, monthly, yearly).
+
+Plotted values are:
+
+- Total spent for each granularity unit (each day for daily granularity, etc.).
+
+- Total spent per category in given period, ordered from highest to lowest.
 
 TODO
 ----
