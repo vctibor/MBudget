@@ -31,7 +31,9 @@ use model::*;
 use calculations::*;
 
 /// String used to register template in Handlebars templating engine.
-const TEMPLATE_NAME: &str = "index_template";
+const INDEX_TEMPLATE_NAME: &str = "INDEX";
+const ANALYTICS_TEMPLATE_NAME: &str = "ANALYTICS";
+
 
 /// Amount of money allowed to spend each day.
 /// **TODO: Move to DB and read on each HTTP request.**
@@ -203,7 +205,7 @@ fn index_month_handler(year: i32, month: u32, day: u32, conn_str: &str) -> Respo
     let handlebars = HBS.get()
         .expect("Failed to read OnceCell containing handlebars templates.");
     
-    let res = handlebars.render(TEMPLATE_NAME, &json_value)
+    let res = handlebars.render(INDEX_TEMPLATE_NAME, &json_value)
         .expect("Failed to render Index template.");
     
     rouille::Response::html(res)
@@ -255,6 +257,24 @@ fn write_event_handler(year: i32, month: u32, day: u32, request: &Request, conn_
     upsert_transactions(&conn, updates);
 }
 
+fn analytics_handler(conn_str: &str) -> Response {
+    
+    let conn: Connection = Connection::connect(conn_str, TlsMode::None)
+        .expect("Failed to connect to database.");   
+
+    let model = ();
+
+    let json_value: Value = json!(model);
+
+    let handlebars = HBS.get()
+        .expect("Failed to read OnceCell containing handlebars templates.");
+    
+    let res = handlebars.render(ANALYTICS_TEMPLATE_NAME, &json_value)
+        .expect("Failed to render Index template.");
+    
+    rouille::Response::html(res)
+}
+
 fn main() {
 
     let options = App::new("MBudget")
@@ -289,11 +309,17 @@ fn main() {
 
         let mut handlebars = Handlebars::new();
 
-        let index = templates_location + "//index.hbs";
+        let index = templates_location.clone() + "//index.hbs";
 
-        handlebars.register_template_file(TEMPLATE_NAME, index)
-            .expect("Failed to register template to Handlebars registry. Aborting.");
+        handlebars.register_template_file(INDEX_TEMPLATE_NAME, index)
+            .expect("Failed to register index template to Handlebars registry. Aborting.");
 
+        let analytics = templates_location + "//analytics.hbs";
+
+        handlebars.register_template_file(ANALYTICS_TEMPLATE_NAME, analytics)
+            .expect("Failed to register analytics template to Handlebars registry. Aborting.");
+
+        // Panic on unknown variables in template
         handlebars.set_strict_mode(true);
 
         handlebars
@@ -335,6 +361,8 @@ fn main() {
                 write_event_handler(year, month, day, &request, &connection_string);                
                 rouille::Response::empty_204()
             },
+
+            (GET) (/analytics) => { analytics_handler(&connection_string) },
 
             _ => rouille::Response::empty_404()    
         )

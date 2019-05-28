@@ -40,4 +40,47 @@ We define *total_disposable_amount* for given accouting period. Based on it we c
 
 That means if I spend exactly *original_daily_disposable* each day, I'll have 0,- left at the end of month.
 
-For each day we calculate 
+For each day we calculate *sum_of_daily_expenses* which is just sum of all transaction amounts for given day.
+
+For given day in month *cd* and remaining days in month *rd* we can calculate following variables:
+
+*total_spent* as
+
+    total_spent = sum(sum_of_daily_expenses)
+
+*remaining_disposable* as
+
+    remaining_disposable = total_disposable_amount - total_spent
+
+*average_daily_spent* as
+
+    average_daily_spent = remaining_disposable / rd
+
+
+Analytics
+---------
+
+Page on address */analytics* will contain plots for analysis of longer term spending habits.
+
+Implemented in [plotly](https://plot.ly/javascript/)
+
+TODO
+----
+
+- Delete record on receiving entry containing valid ID and empty or zero amount
+
+- Move summarization calculation into database (view or stored procedure or function)
+
+- Move original daily allowance into database in format [*amount*, *validSince*], when reading use either:
+
+    - entry with lowest *validSince* if reading for date which is lower than lowest *validSince*
+
+    - entry with highest *validSince* if reading for date higher than highest *validSince*
+
+    - entry with lower *validSince* if reading for date which falls between two entries
+
+- Analytics
+
+- General error handling
+
+- Logging
