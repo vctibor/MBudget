@@ -7,16 +7,14 @@ RUN yum update -y
 
 RUN yum install -y openssl openssl-devel
 
-RUN mkdir /var/mcalendar
-
-RUN mkdir /var/mcalendar/mcalendar.sled
+RUN mkdir /var/mbudget
 
 
 # Copy required files
 
-ADD mcalendar.tar /var/mcalendar
+ADD mbudget.tar /var/mbudget
 
 
-EXPOSE 8000
+EXPOSE 8080
 
-CMD ["/var/mcalendar/mcalendar", "/var/mcalendar/config.toml"]
+CMD ["/var/mbudget/mbudget", "/var/mbudget/config.toml"]
