@@ -222,3 +222,33 @@ pub fn upsert_transactions(conn: &Connection, transactions: Vec<Transaction>)
         }
     }
 }
+
+pub fn get_daily_transactions(conn: &Connection) -> (Vec<NaiveDate>, Vec<f64>) {
+    let query = "select date, cast(sum(amount) as double precision)
+    from transactions group by date order by date";
+
+    let rows = &conn.query(&query, &[]).expect("Query failed.");
+
+    //let mut result = Vec::with_capacity(rows.len());
+
+    let mut dates = Vec::with_capacity(rows.len());
+    let mut values = Vec::with_capacity(rows.len());
+
+    for row in rows {
+
+        let date: NaiveDate = row.get(0);
+
+        let amount: f64 = row.get(1);
+
+        let amount = amount / SCALE;
+
+        //result.push((date, amount));
+
+        dates.push(date);
+        values.push(amount);
+    }
+
+    //result
+
+    (dates, values)
+}

@@ -155,3 +155,11 @@ pub struct Config {
     /// Static files location
     pub wwwroot: String
 }
+
+/// Represents data for analytics.
+#[derive(Serialize, Deserialize)]
+pub struct AnalyticsData {
+
+    /// Vector of sums of all transactions for each day. 
+    pub daily_expenses: (Vec<NaiveDate>, Vec<f64>)
+}

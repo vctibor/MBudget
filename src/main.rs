@@ -259,14 +259,9 @@ fn write_event_handler(year: i32, month: u32, day: u32, request: &Request, conn_
     upsert_transactions(&conn, updates);
 }
 
-fn analytics_handler(conn_str: &str) -> Response {
-    
-    /*
-    let conn: Connection = Connection::connect(conn_str, TlsMode::None)
-        .expect("Failed to connect to database.");   
-    */
+/// Serve analytics web page.
+fn analytics_handler() -> Response {
 
-    
     let model = ();
 
     let json_value: Value = json!(model);
@@ -278,6 +273,21 @@ fn analytics_handler(conn_str: &str) -> Response {
         .expect("Failed to render Index template.");
     
     rouille::Response::html(res)
+}
+
+/// Serve JSON values to analytics page.
+fn analytics_data_handler(conn_str: &str) -> Response {
+
+    let conn: Connection = Connection::connect(conn_str, TlsMode::None)
+        .expect("Failed to connect to database.");
+
+    let result = get_daily_transactions(&conn);
+
+    let data = AnalyticsData {
+        daily_expenses: result
+    };
+
+    Response::json(&data)
 }
 
 fn main() {
@@ -367,7 +377,11 @@ fn main() {
                 rouille::Response::empty_204()
             },
 
-            (GET) (/analytics) => { analytics_handler(&connection_string) },
+            (GET) (/analytics) => { analytics_handler() },
+
+            (GET) (/analytics/data) => {
+                analytics_data_handler(&connection_string)
+            },
 
             _ => rouille::Response::empty_404()    
         )
