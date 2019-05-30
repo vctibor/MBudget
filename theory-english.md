@@ -56,6 +56,24 @@ For given day in month *cd* and remaining days in month *rd* we can calculate fo
 
     average_daily_spent = total_spent / rd
 
+*real_daily_disposable* as
+
+    real_daily_disposable = remaining_disposable / rd
+
+*potential_remaining* as
+
+    potential_remaining = remaining_disposable - (rd * average_daily_spent)
+
+*saldo* is difference between what should have been spent already and what was really spent, calculated as:
+
+    saldo = (cd * original_daily_diposable) - total_spent
+
+Formulas described above are valid for curent month. For previous months they are modified in such way that *cd* is set to last day of month.
+
+Application specification
+-------------------------
+
+
 
 Analytics
 ---------
