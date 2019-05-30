@@ -44,11 +44,9 @@ pub fn get_month_days(year: i32, month: u32) -> Vec<NaiveDate> {
 
     let mut days: Vec<NaiveDate> = Vec::with_capacity(5);
 
-    for day in 1..(last_day+1) {
+    for day in 1..=last_day {
         days.push(NaiveDate::from_ymd(year, month, day));
     }
-
-    let days = days;
 
     days
 }

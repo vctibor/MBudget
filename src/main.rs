@@ -80,8 +80,8 @@ fn index_month_handler(year: i32, month: u32, day: u32, conn_str: &str) -> Respo
 
         model_days.push(Day {
             day: day_in_month,
-            color: color,
-            amount: amount
+            color,
+            amount
         });
     }
     
@@ -132,25 +132,23 @@ fn index_month_handler(year: i32, month: u32, day: u32, conn_str: &str) -> Respo
     // Constructs Transactions viewmodel. Probably can be done in more idiomatic and shorter way.
     let transactions_view: Vec<TransactionVM> = {
 
-        let count = day_transactions.len();
+        let mut transactions_view =
+            Vec::with_capacity(day_transactions.len());
 
-        let mut transactions_view = Vec::with_capacity(count);
+        for transaction in &day_transactions {
 
-        for i in 0..count {
-
-            let t = &day_transactions[i];
-            
             let cats = {
-                let cat_count = categories.len();
-                let mut cats = Vec::with_capacity(cat_count);
-                for j in 0..cat_count {
+                
+                let mut cats = Vec::with_capacity(categories.len());
+                
+                for cat in categories {
 
                     let selected_cat =
-                        t.category.is_some() && categories[j].id == t.category.unwrap();
+                        transaction.category.is_some() && cat.id == transaction.category.unwrap();
 
                     cats.push(CategoryVM {
-                        id: categories[j].id,
-                        name: categories[j].name.clone(),
+                        id: cat.id,
+                        name: cat.name.clone(),
                         selected: selected_cat
                     });
                 }
@@ -158,11 +156,11 @@ fn index_month_handler(year: i32, month: u32, day: u32, conn_str: &str) -> Respo
             };
 
             transactions_view.push(TransactionVM {
-                id: t.id.unwrap(),
-                date: t.date,
+                id: transaction.id.unwrap(),
+                date: transaction.date,
                 categories: cats,    
-                amount: t.amount,
-                description: t.description.clone()
+                amount: transaction.amount,
+                description: transaction.description.clone()
             });
         }
 
@@ -172,10 +170,10 @@ fn index_month_handler(year: i32, month: u32, day: u32, conn_str: &str) -> Respo
     let categories_view = {
         let mut c = Vec::with_capacity(categories.len());
 
-        for i in 0..categories.len() {
+        for category in categories {
             c.push(CategoryVM {
-                id: categories[i].id,
-                name: categories[i].name.clone(),
+                id: category.id,
+                name: category.name.clone(),
                 selected: false
             });
         }
@@ -184,15 +182,15 @@ fn index_month_handler(year: i32, month: u32, day: u32, conn_str: &str) -> Respo
     };
 
     let model = IndexVM {
-        day: day,
-        month: month,
+        day,
+        month,
         month_name: month_name.clone(),
-        year: year,
-        addr_nxt_month: addr_nxt_month,
-        addr_prv_month: addr_prv_month,
-        addr_nxt_day: addr_nxt_day,
-        addr_prv_day: addr_prv_day,
-        info: info,
+        year,
+        addr_nxt_month,
+        addr_prv_month,
+        addr_nxt_day,
+        addr_prv_day,
+        info,
         days: model_days,
         current_day: format!("{}. {}", day, month_name),
         current_day_name: day_name,
@@ -247,7 +245,7 @@ fn write_event_handler(year: i32, month: u32, day: u32, request: &Request, conn_
 
         let transaction = Transaction {
             id: record.id,
-            date: date.clone(),
+            date,
             category: record.category,            
             amount: record.amount.unwrap(),
             description: Some(record.description)

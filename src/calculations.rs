@@ -10,7 +10,7 @@ fn total_disposable(
     daily_disposable: f64,
     days_in_month: u32) -> f64
 {
-    let days_in_month = days_in_month as f64;
+    let days_in_month = f64::from(days_in_month);
     
     daily_disposable * days_in_month
 }
@@ -40,7 +40,7 @@ fn real_daily_disposable(
     let real_daily_disposable = if last_day <= current_date.day() {
         amount_remaining
     } else {
-        let days_remaining = (last_day - current_date.day()) as f64;
+        let days_remaining = f64::from(last_day - current_date.day());
 
         amount_remaining / days_remaining
     };
@@ -60,7 +60,7 @@ fn average_daily_spent(
     daily_disposable: f64,
     current_date: NaiveDate) -> (f64, Color)
 {
-    let day = current_date.day() as f64;
+    let day = f64::from(current_date.day());
     let average_daily_spent = amount_spent / day;
 
     let color = if daily_disposable >= average_daily_spent {
@@ -89,7 +89,7 @@ fn potential_remaining(
     let potential_remaining = if last_day <= current_date.day() {
         amount_remaining
     } else {
-        let days_remaining = (last_day - day) as f64;
+        let days_remaining = f64::from(last_day - day);
         amount_remaining - (average_daily_spent * days_remaining)
     };
 
@@ -112,7 +112,7 @@ fn saldo(
     amount_remaining: f64,
     date: NaiveDate) -> (f64, Color)
 {
-    let day = date.day() as f64;
+    let day = f64::from(date.day());
 
     let last_day = last_day(date.year(), date.month());
 
@@ -142,10 +142,10 @@ pub fn get_calculations(
 
     let amount_remaining = amount_remaining(total_disposable, amount_spent);
 
-    let (real_daily_disposable, real_daily_disposable_color) = real_daily_disposable(
+    let (real_daily_disposable, real_day_disposable_color) = real_daily_disposable(
         amount_remaining, daily_disposable, date);
 
-    let (average_daily_spent, average_daily_spent_color) = average_daily_spent(
+    let (average_daily_spent, avg_daily_expenses_color) = average_daily_spent(
         amount_spent, daily_disposable, date);
 
     let (saldo, saldo_color) = saldo(
@@ -165,9 +165,9 @@ pub fn get_calculations(
         saldo: format!("{:.2}", saldo),
         potential_remaining: format!("{:.2}", potential_remaining),
 
-        real_day_disposable_color: real_daily_disposable_color,
-        avg_daily_expenses_color: average_daily_spent_color,
-        saldo_color: saldo_color,
-        potential_remaining_color: potential_remaining_color
+        real_day_disposable_color,
+        avg_daily_expenses_color,
+        saldo_color,
+        potential_remaining_color
     }
 }

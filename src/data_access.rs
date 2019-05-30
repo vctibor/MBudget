@@ -38,14 +38,12 @@ pub fn read_day_transactions(conn: &Connection, year: i32, month: u32, day: u32)
             id: row.get(0),
             date: row.get(1),
             category: row.get(2),
-            amount: amount,
+            amount,
             description: row.get(4)
         };
 
         vec.push(tran);
     }
-
-    let vec = vec;
 
     vec
 }
@@ -54,8 +52,8 @@ pub fn read_day_transactions(conn: &Connection, year: i32, month: u32, day: u32)
 pub fn read_month_transactions(conn: &Connection, year: i32, month: u32)
     -> HashMap<u32, DailyExpense>
 {    
-    let month = month as f64;
-    let year = year as f64;
+    let month = f64::from(month);
+    let year = f64::from(year);
 
     let query = "select * from days where month = $1 and year = $2";
 
@@ -79,9 +77,9 @@ pub fn read_month_transactions(conn: &Connection, year: i32, month: u32)
         let amount = (amount as f64) / SCALE;
         
         let exp = DailyExpense {
-            day: day,
-            month: month,
-            year: year,
+            day,
+            month,
+            year,
             total_spent: amount,
             trans_count: row.get(4)
         };
@@ -138,9 +136,7 @@ pub fn get_categories(conn: &Connection) -> Vec<Category> {
 
                 vec.push(cat);
             }
-
-            let vec = vec;
-
+            
             vec
         },
 
