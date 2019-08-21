@@ -2,6 +2,8 @@
 
 Web based budgeting application.
 
+![Screenshot](./screenshot.png?raw=true "Screenshot")
+
 ## Features
 
 For detailed description see *theory.md* or *theory-english.md* files.
