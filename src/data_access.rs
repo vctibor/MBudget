@@ -119,7 +119,7 @@ pub fn get_month_spent(conn: &Connection, year: i32, month: u32) -> f64 {
 /// Returns empty list in case of failure (perhaps better return Option).
 pub fn get_categories(conn: &Connection) -> Vec<Category> {
 
-    let query = "select id, name from categories";
+    let query = "select id, name from categories_ordered";
 
     let query_result = &conn.query(&query, &[]);
 

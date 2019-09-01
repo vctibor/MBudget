@@ -1,5 +1,5 @@
 CREATE TABLE Categories (
-    ID SERIAL,
+    ID INTEGER NOT NULL,
     Name TEXT NOT NULL,
     PRIMARY KEY(ID)
 );
@@ -24,16 +24,15 @@ FROM Transactions
 GROUP BY Day, Month, Year
 ORDER BY Year, Month, Day;
 
+CREATE VIEW Categories_ordered AS
+SELECT
+	c.id,
+	c.name,
+	count(*)
+FROM categories c
+JOIN transactions t ON c.id = t.category
+GROUP BY c.id
+ORDER BY count DESC;
+
 GRANT ALL PRIVILEGES
 ON ALL TABLES IN SCHEMA public TO malky;
-
-INSERT INTO Categories(name) VALUES
-    ('Potraviny & domácnost'),
-    ('Oblečení'),
-    ('Alkohol'),
-    ('Čajovny & kavárny'),
-    ('Restaurace'),
-    ('Cestování & PHM'),
-    ('Elektronika'),
-    ('Airsoft'),
-    ('Pokuty')
